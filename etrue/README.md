@@ -1,0 +1,3 @@
+# taipublicchain
+
+init
