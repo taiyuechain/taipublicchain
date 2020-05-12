@@ -18,7 +18,7 @@ package les
 
 import (
 	"github.com/taiyuechain/taipublicchain/core/rawdb"
-	"github.com/taiyuechain/taipublicchain/etrue/downloader"
+	"github.com/taiyuechain/taipublicchain/tai/downloader"
 )
 
 // syncer is responsible for periodically synchronising with the network, both

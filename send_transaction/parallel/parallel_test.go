@@ -10,9 +10,9 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
 	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 	"math/big"
 	"os"
 	"testing"
@@ -53,7 +53,7 @@ func DefaulGenesisBlock() *core.Genesis {
 
 var (
 	engine    = minerva.NewFaker()
-	db        = etruedb.NewMemDatabase()
+	db        = taidb.NewMemDatabase()
 	gspec     = DefaulGenesisBlock()
 	signer    = types.NewTIP1Signer(gspec.Config.ChainID)
 	priKey, _ = crypto.HexToECDSA("0260c952edc49037129d8cabbe4603d15185d83aa718291279937fb6db0fa7a2")
@@ -112,7 +112,7 @@ func TestParallelTX(t *testing.T) {
 	params.InsertBlockTime = 0
 	repeat := int64(params.RepeatCount)
 	for i := 0; i < int(repeat); i++ {
-		db1 := etruedb.NewMemDatabase()
+		db1 := taidb.NewMemDatabase()
 		gspec.MustFastCommit(db1)
 
 		blockchain, err := core.NewBlockChain(db1, nil, gspec.Config, engine, vm.Config{})

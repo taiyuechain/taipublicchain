@@ -27,8 +27,8 @@ import (
 	"github.com/taiyuechain/taipublicchain/core"
 	"github.com/taiyuechain/taipublicchain/core/snailchain"
 	"github.com/taiyuechain/taipublicchain/core/types"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 var (
@@ -53,7 +53,7 @@ func init() {
 
 // testWorkerBackend implements worker.Backend interfaces and wraps all information needed during the testing.
 type testWorkerBackend struct {
-	db             etruedb.Database
+	db             taidb.Database
 	txPool         *core.TxPool
 	chain          *snailchain.SnailBlockChain
 	fastchain      *core.BlockChain
@@ -64,7 +64,7 @@ type testWorkerBackend struct {
 
 func newTestWorkerBackend(t *testing.T, chainConfig *params.ChainConfig, engine consensus.Engine, n int) *testWorkerBackend {
 	var (
-		db      = etruedb.NewMemDatabase()
+		db      = taidb.NewMemDatabase()
 		genesis = core.DefaultGenesisBlock()
 	)
 	snailChainLocal, fastChainLocal = snailchain.MakeChain(fastChainHight, blockNum, genesis, minerva.NewFaker())
@@ -83,7 +83,7 @@ func (b *testWorkerBackend) AccountManager() *accounts.Manager            { retu
 func (b *testWorkerBackend) SnailGenesis() *types.SnailBlock              { return b.chain.GetBlockByNumber(0) }
 func (b *testWorkerBackend) TxPool() *core.TxPool                         { return b.txPool }
 func (b *testWorkerBackend) BlockChain() *core.BlockChain                 { return b.fastchain }
-func (b *testWorkerBackend) ChainDb() etruedb.Database                    { return b.db }
+func (b *testWorkerBackend) ChainDb() taidb.Database                      { return b.db }
 func (b *testWorkerBackend) SnailPool() *snailchain.SnailPool             { return b.snailPool }
 
 func newTestWorker(t *testing.T, chainConfig *params.ChainConfig, engine consensus.Engine, blocks int) (*worker, *testWorkerBackend) {
@@ -105,7 +105,7 @@ func TestCommitFastBlock(t *testing.T) {
 	)
 	engine := minerva.NewFaker()
 
-	chainDb := etruedb.NewMemDatabase()
+	chainDb := taidb.NewMemDatabase()
 	chainConfig, _, _, _ := core.SetupGenesisBlock(chainDb, core.DefaultGenesisBlock())
 	//Miner := New(snailChainLocal, nil, nil, snailChainLocal.Engine(), nil, false, nil)
 	worker, _ := newTestWorker(t, chainConfig, engine, 1)
@@ -192,7 +192,7 @@ func TestCommitFruits(t *testing.T) {
 	)
 	engine := minerva.NewFaker()
 
-	chainDb := etruedb.NewMemDatabase()
+	chainDb := taidb.NewMemDatabase()
 	chainConfig, _, _, _ := core.SetupGenesisBlock(chainDb, core.DefaultGenesisBlock())
 	//Miner := New(snailChainLocal, nil, nil, snailChainLocal.Engine(), nil, false, nil)
 	worker, _ := newTestWorker(t, chainConfig, engine, 1)

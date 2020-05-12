@@ -19,11 +19,11 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/state"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etrue/filters"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/params"
 	"github.com/taiyuechain/taipublicchain/rpc"
+	"github.com/taiyuechain/taipublicchain/tai/filters"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 // This nil assignment ensures compile time that SimulatedBackend implements bind.ContractBackend.
@@ -35,7 +35,7 @@ var errGasEstimationFailed = errors.New("gas required exceeds allowance or alway
 // SimulatedBackend implements bind.ContractBackend, simulating a blockchain in
 // the background. Its main purpose is to allow easily testing contract bindings.
 type SimulatedBackend struct {
-	database   etruedb.Database // In memory database to store our testing data
+	database   taidb.Database   // In memory database to store our testing data
 	blockchain *core.BlockChain // Ethereum blockchain to handle the consensus
 
 	mu           sync.Mutex
@@ -50,7 +50,7 @@ type SimulatedBackend struct {
 // NewSimulatedBackend creates a new binding backend using a simulated blockchain
 // for testing purposes. for fast blockchain
 func NewSimulatedBackend(alloc types.GenesisAlloc, gasLimit uint64) *SimulatedBackend {
-	database := etruedb.NewMemDatabase()
+	database := taidb.NewMemDatabase()
 	genesis := core.Genesis{Config: params.AllMinervaProtocolChanges, GasLimit: gasLimit, Alloc: alloc}
 	genesis.MustFastCommit(database)
 	// genesis.MustSnailCommit(database)
@@ -409,12 +409,12 @@ func (m callmsg) Data() []byte            { return m.CallMsg.Data }
 // filterBackend implements filters.Backend to support filtering for logs without
 // taking bloom-bits acceleration structures into account.
 type filterBackend struct {
-	db etruedb.Database
+	db taidb.Database
 	bc *core.BlockChain
 }
 
-func (fb *filterBackend) ChainDb() etruedb.Database { return fb.db }
-func (fb *filterBackend) EventMux() *event.TypeMux  { panic("not supported") }
+func (fb *filterBackend) ChainDb() taidb.Database  { return fb.db }
+func (fb *filterBackend) EventMux() *event.TypeMux { panic("not supported") }
 
 func (fb *filterBackend) HeaderByNumber(ctx context.Context, block rpc.BlockNumber) (*types.Header, error) {
 	if block == rpc.LatestBlockNumber {

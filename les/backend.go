@@ -30,11 +30,6 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/bloombits"
 	"github.com/taiyuechain/taipublicchain/core/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/types"
-	"github.com/taiyuechain/taipublicchain/etrue"
-	"github.com/taiyuechain/taipublicchain/etrue/downloader"
-	"github.com/taiyuechain/taipublicchain/etrue/filters"
-	"github.com/taiyuechain/taipublicchain/etrue/gasprice"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/internal/trueapi"
 	"github.com/taiyuechain/taipublicchain/light"
@@ -44,10 +39,15 @@ import (
 	"github.com/taiyuechain/taipublicchain/p2p/discv5"
 	"github.com/taiyuechain/taipublicchain/params"
 	"github.com/taiyuechain/taipublicchain/rpc"
+	"github.com/taiyuechain/taipublicchain/tai"
+	"github.com/taiyuechain/taipublicchain/tai/downloader"
+	"github.com/taiyuechain/taipublicchain/tai/filters"
+	"github.com/taiyuechain/taipublicchain/tai/gasprice"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 type LightEtrue struct {
-	config *etrue.Config
+	config *tai.Config
 
 	odr         *LesOdr
 	relay       *LesTxRelay
@@ -63,7 +63,7 @@ type LightEtrue struct {
 	reqDist         *requestDistributor
 	retriever       *retrieveManager
 	// DB interfaces
-	chainDb etruedb.Database // Block chain database
+	chainDb taidb.Database // Block chain database
 
 	bloomRequests                              chan chan *bloombits.Retrieval // Channel receiving bloom data retrieval requests
 	bloomIndexer, chtIndexer, bloomTrieIndexer *core.ChainIndexer
@@ -80,8 +80,8 @@ type LightEtrue struct {
 	wg sync.WaitGroup
 }
 
-func New(ctx *node.ServiceContext, config *etrue.Config) (*LightEtrue, error) {
-	chainDb, err := etrue.CreateDB(ctx, config, "lightchaindata")
+func New(ctx *node.ServiceContext, config *tai.Config) (*LightEtrue, error) {
+	chainDb, err := tai.CreateDB(ctx, config, "lightchaindata")
 	if err != nil {
 		return nil, err
 	}
@@ -102,11 +102,11 @@ func New(ctx *node.ServiceContext, config *etrue.Config) (*LightEtrue, error) {
 		peers:            peers,
 		reqDist:          newRequestDistributor(peers, quitSync),
 		accountManager:   ctx.AccountManager,
-		engine:           etrue.CreateConsensusEngine(ctx, &config.MinervaHash, chainConfig, chainDb),
+		engine:           tai.CreateConsensusEngine(ctx, &config.MinervaHash, chainConfig, chainDb),
 		shutdownChan:     make(chan bool),
 		networkId:        config.NetworkId,
 		bloomRequests:    make(chan chan *bloombits.Retrieval),
-		bloomIndexer:     etrue.NewBloomIndexer(chainDb, light.BloomTrieFrequency),
+		bloomIndexer:     tai.NewBloomIndexer(chainDb, light.BloomTrieFrequency),
 		chtIndexer:       light.NewChtIndexer(chainDb, true),
 		bloomTrieIndexer: light.NewBloomTrieIndexer(chainDb, true),
 	}

@@ -523,7 +523,7 @@ type SnailBody struct {
 	Signs  []*PbftSign
 }
 
-// SnailBlock represents an entire snail block in the TrueChain snail chain.
+// SnailBlock represents an entire snail block in the TaiChain snail chain.
 type SnailBlock struct {
 	header *SnailHeader
 	fruits SnailBlocks
@@ -752,7 +752,7 @@ func (b *SnailBlock) DecodeRLP(s *rlp.Stream) error {
 	return nil
 }
 
-// EncodeRLP serializes b into the TrueChain RLP block format.
+// EncodeRLP serializes b into the TaiChain RLP block format.
 func (b *SnailBlock) EncodeRLP(w io.Writer) error {
 	return rlp.Encode(w, extsnailblock{
 		Header: b.header,

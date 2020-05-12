@@ -28,8 +28,8 @@ import (
 	"github.com/taiyuechain/taipublicchain/core"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 	//"github.com/taiyuechain/taipublicchain/etrue"
 )
 
@@ -294,7 +294,7 @@ func (cr *fakeChainReader) GetBlock(hash common.Hash, number uint64) *types.Snai
 //MakeChain return snailChain and fastchain by given fastBlockNumbers and snailBlockNumbers
 func MakeChain(fastBlockNumbers int, snailBlockNumbers int, genesis *core.Genesis, engine consensus.Engine) (*SnailBlockChain, *core.BlockChain) {
 	var (
-		testdb = etruedb.NewMemDatabase()
+		testdb = taidb.NewMemDatabase()
 	)
 	cache := &core.CacheConfig{
 		//TrieNodeLimit: etrue.DefaultConfig.TrieCache,
@@ -453,7 +453,7 @@ func makeBlockHead(chain *SnailBlockChain, fastchain *core.BlockChain, parent *t
 }
 
 // makeHeaderChain creates a deterministic chain of headers rooted at parent.
-func makeHeaderChain(fastChain *core.BlockChain, parents []*types.SnailHeader, n int, engine consensus.Engine, db etruedb.Database, seed int) []*types.SnailHeader {
+func makeHeaderChain(fastChain *core.BlockChain, parents []*types.SnailHeader, n int, engine consensus.Engine, db taidb.Database, seed int) []*types.SnailHeader {
 	oldBlocks := make([]*types.SnailBlock, 0)
 	for i := 0; i < len(parents); i++ {
 		oldBlocks = append(oldBlocks, types.NewSnailBlockWithHeader(parents[i]))
@@ -467,7 +467,7 @@ func makeHeaderChain(fastChain *core.BlockChain, parents []*types.SnailHeader, n
 }
 
 // makeBlockChain creates a deterministic chain of blocks rooted at parent.
-func makeBlockChain(fastChain *core.BlockChain, parents []*types.SnailBlock, n int, engine consensus.Engine, db etruedb.Database, seed int) []*types.SnailBlock {
+func makeBlockChain(fastChain *core.BlockChain, parents []*types.SnailBlock, n int, engine consensus.Engine, db taidb.Database, seed int) []*types.SnailBlock {
 	if fastChain.CurrentBlock().NumberU64() == 0 {
 		fastblocks, _ := core.GenerateChain(params.TestChainConfig, fastChain.CurrentBlock(), engine, db, n*params.MinimumFruits, func(i int, b *core.BlockGen) {
 			b.SetCoinbase(common.Address{0: byte(1), 19: byte(i)})

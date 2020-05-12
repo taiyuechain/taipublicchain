@@ -30,12 +30,12 @@ import (
 	"time"
 
 	"github.com/taiyuechain/taipublicchain/common/mclock"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/p2p"
 	"github.com/taiyuechain/taipublicchain/p2p/discv5"
 	"github.com/taiyuechain/taipublicchain/p2p/enode"
 	"github.com/taiyuechain/taipublicchain/rlp"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 const (
@@ -113,7 +113,7 @@ type registerReq struct {
 // known light server nodes. It received discovered nodes, stores statistics about
 // known nodes and takes care of always having enough good quality servers connected.
 type serverPool struct {
-	db     etruedb.Database
+	db     taidb.Database
 	dbKey  []byte
 	server *p2p.Server
 	quit   chan struct{}
@@ -141,7 +141,7 @@ type serverPool struct {
 }
 
 // newServerPool creates a new serverPool instance
-func newServerPool(db etruedb.Database, quit chan struct{}, wg *sync.WaitGroup, trustedNodes []string) *serverPool {
+func newServerPool(db taidb.Database, quit chan struct{}, wg *sync.WaitGroup, trustedNodes []string) *serverPool {
 	pool := &serverPool{
 		db:           db,
 		quit:         quit,

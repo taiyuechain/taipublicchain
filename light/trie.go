@@ -25,7 +25,7 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/state"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/etruedb"
+	"github.com/taiyuechain/taipublicchain/taidb"
 	"github.com/taiyuechain/taipublicchain/trie"
 )
 
@@ -141,7 +141,7 @@ func (t *odrTrie) GetKey(sha []byte) []byte {
 	return nil
 }
 
-func (t *odrTrie) Prove(key []byte, fromLevel uint, proofDb etruedb.Putter) error {
+func (t *odrTrie) Prove(key []byte, fromLevel uint, proofDb taidb.Putter) error {
 	return errors.New("not implemented, needs client/server interface split")
 }
 

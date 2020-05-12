@@ -32,11 +32,11 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/internal/debug"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/node"
 	"github.com/taiyuechain/taipublicchain/rlp"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 const (
@@ -239,7 +239,7 @@ func ExportAppendChain(blockchain *core.BlockChain, fn string, first uint64, las
 }
 
 // ImportPreimages imports a batch of exported hash preimages into the database.
-func ImportPreimages(db *etruedb.LDBDatabase, fn string) error {
+func ImportPreimages(db *taidb.LDBDatabase, fn string) error {
 	log.Info("Importing preimages", "file", fn)
 
 	// Open the file handle and potentially unwrap the gzip stream
@@ -286,7 +286,7 @@ func ImportPreimages(db *etruedb.LDBDatabase, fn string) error {
 
 // ExportPreimages exports all known hash preimages into the specified file,
 // truncating any data already present in the file.
-func ExportPreimages(db *etruedb.LDBDatabase, fn string) error {
+func ExportPreimages(db *taidb.LDBDatabase, fn string) error {
 	log.Info("Exporting preimages", "file", fn)
 
 	// Open the file handle and potentially wrap with a gzip stream

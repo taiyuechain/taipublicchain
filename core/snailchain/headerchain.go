@@ -31,9 +31,9 @@ import (
 	"github.com/taiyuechain/taipublicchain/consensus"
 	"github.com/taiyuechain/taipublicchain/core/snailchain/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/types"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 const (
@@ -50,7 +50,7 @@ const (
 type HeaderChain struct {
 	config *params.ChainConfig
 
-	chainDb       etruedb.Database
+	chainDb       taidb.Database
 	genesisHeader *types.SnailHeader
 
 	currentHeader     atomic.Value // Current head of the header chain (may be above the block chain!)
@@ -70,7 +70,7 @@ type HeaderChain struct {
 //  getValidator should return the parent's validator
 //  procInterrupt points to the parent's interrupt semaphore
 //  wg points to the parent's shutdown wait group
-func NewHeaderChain(chainDb etruedb.Database, config *params.ChainConfig, engine consensus.Engine, procInterrupt func() bool) (*HeaderChain, error) {
+func NewHeaderChain(chainDb taidb.Database, config *params.ChainConfig, engine consensus.Engine, procInterrupt func() bool) (*HeaderChain, error) {
 	headerCache, _ := lru.New(headerCacheLimit)
 	tdCache, _ := lru.New(tdCacheLimit)
 	numberCache, _ := lru.New(numberCacheLimit)

@@ -20,10 +20,10 @@ import (
 	"reflect"
 
 	"github.com/taiyuechain/taipublicchain/accounts"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/p2p"
 	"github.com/taiyuechain/taipublicchain/rpc"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 // ServiceContext is a collection of service independent options inherited from
@@ -39,11 +39,11 @@ type ServiceContext struct {
 // OpenDatabase opens an existing database with the given name (or creates one
 // if no previous can be found) from within the node's data directory. If the
 // node is an ephemeral one, a memory database is returned.
-func (ctx *ServiceContext) OpenDatabase(name string, cache int, handles int) (etruedb.Database, error) {
+func (ctx *ServiceContext) OpenDatabase(name string, cache int, handles int) (taidb.Database, error) {
 	if ctx.config.DataDir == "" {
-		return etruedb.NewMemDatabase(), nil
+		return taidb.NewMemDatabase(), nil
 	}
-	db, err := etruedb.NewLDBDatabase(ctx.config.ResolvePath(name), cache, handles)
+	db, err := taidb.NewLDBDatabase(ctx.config.ResolvePath(name), cache, handles)
 	if err != nil {
 		return nil, err
 	}

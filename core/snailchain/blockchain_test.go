@@ -25,9 +25,9 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/snailchain/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 	"math/big"
 	"math/rand"
 	"os"
@@ -48,9 +48,9 @@ var (
 // newCanonical creates a chain database, and injects a deterministic canonical
 // chain. Depending on the full flag, if creates either a full block chain or a
 // header only chain.
-func newCanonical(engine consensus.Engine, n int, full bool) (etruedb.Database, *SnailBlockChain, *core.BlockChain, error) {
+func newCanonical(engine consensus.Engine, n int, full bool) (taidb.Database, *SnailBlockChain, *core.BlockChain, error) {
 	var (
-		db            = etruedb.NewMemDatabase()
+		db            = taidb.NewMemDatabase()
 		commonGenesis = core.DefaultGenesisBlock()
 		snailGenesis  = commonGenesis.MustSnailCommit(db)
 		fastGenesis   = commonGenesis.MustFastCommit(db)
@@ -1218,7 +1218,7 @@ func TestBlockchainHeaderchainReorgConsistency(t *testing.T) {
 	// Generate a canonical chain to act as the main dataset
 	engine := minerva.NewFaker()
 
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 	commonGenesis := core.DefaultGenesisBlock()
 	genesis := commonGenesis.MustSnailCommit(db)
 	_, fastChain, _ := core.NewCanonical(engine, 0, true)
@@ -1238,7 +1238,7 @@ func TestBlockchainHeaderchainReorgConsistency(t *testing.T) {
 	}
 	// Import the canonical and fork chain side by side, verifying the current block
 	// and current header consistency
-	diskdb := etruedb.NewMemDatabase()
+	diskdb := taidb.NewMemDatabase()
 	commonGenesis.MustSnailCommit(diskdb)
 
 	chain, err := NewSnailBlockChain(diskdb, params.TestChainConfig, engine, fastChain)

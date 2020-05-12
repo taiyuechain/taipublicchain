@@ -1,4 +1,4 @@
-// Copyright 2018 The TrueChain Authors
+// Copyright 2018 The TaiChain Authors
 // This file is part of the taipublicchain library.
 //
 // The taipublicchain library is free software: you can redistribute it and/or modify
@@ -30,8 +30,8 @@ import (
 	"github.com/taiyuechain/taipublicchain/core"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 // testSnailPoolConfig is a fruit pool configuration without stateful disk
@@ -41,12 +41,12 @@ var fastchainpool *core.BlockChain
 var snailblockchain *SnailBlockChain
 var enginepool consensus.Engine
 var chainConfigpool *params.ChainConfig
-var peerDbpool etruedb.Database // Database of the peers containing all data
+var peerDbpool taidb.Database // Database of the peers containing all data
 var genesispool *core.Genesis
 var snailGenesis *types.SnailBlock
 
 func poolinit() {
-	peerDbpool = etruedb.NewMemDatabase()
+	peerDbpool = taidb.NewMemDatabase()
 	testSnailPoolConfig = DefaultSnailPoolConfig
 	chainConfigpool = params.TestChainConfig
 	testSnailPoolConfig.Journal = ""

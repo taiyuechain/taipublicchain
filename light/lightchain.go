@@ -31,11 +31,11 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/state"
 	"github.com/taiyuechain/taipublicchain/core/types"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
 	"github.com/taiyuechain/taipublicchain/rlp"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 var (
@@ -48,7 +48,7 @@ var (
 // interface. It only does header validation during chain insertion.
 type LightChain struct {
 	hc            *core.HeaderChain
-	chainDb       etruedb.Database
+	chainDb       taidb.Database
 	odr           OdrBackend
 	chainFeed     event.Feed
 	chainSideFeed event.Feed

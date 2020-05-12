@@ -5,7 +5,7 @@ import (
 	"github.com/taiyuechain/taipublicchain/common"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/etruedb"
+	"github.com/taiyuechain/taipublicchain/taidb"
 	"math/big"
 	"testing"
 	"time"
@@ -13,7 +13,7 @@ import (
 
 func TestStateTime(t *testing.T) {
 	// Create an empty state0 database
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 	state0, _ := New(common.Hash{}, NewDatabase(db))
 	mAccount := common.HexToAddress("0xC02f50f4F41f46b6a2f08036ae65039b2F9aCd69")
 	key, _ := crypto.GenerateKey()

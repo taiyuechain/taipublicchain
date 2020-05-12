@@ -32,11 +32,11 @@ import (
 	"time"
 
 	"github.com/mohae/deepcopy"
-	"github.com/taiyuechain/taipublicchain/etrue"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/p2p"
 	"github.com/taiyuechain/taipublicchain/params"
 	"github.com/taiyuechain/taipublicchain/rpc"
+	"github.com/taiyuechain/taipublicchain/tai"
 	"golang.org/x/net/websocket"
 	"io"
 	"net/http"
@@ -71,7 +71,7 @@ type Dashboard struct {
 	quit chan chan error // Channel used for graceful exit
 	wg   sync.WaitGroup  // Wait group used to close the data collector threads
 
-	etrue *etrue.Taichain // Full Taichain service if monitoring a full node
+	etrue *tai.Taichain // Full Taichain service if monitoring a full node
 }
 
 // client represents active websocket connection with a remote browser.
@@ -82,7 +82,7 @@ type client struct {
 }
 
 // New creates a new dashboard instance with the given configuration.
-func New(config *Config, commit string, logdir string, ethServ *etrue.Taichain) *Dashboard {
+func New(config *Config, commit string, logdir string, ethServ *tai.Taichain) *Dashboard {
 	now := time.Now()
 	versionMeta := ""
 	if len(params.VersionMeta) > 0 {

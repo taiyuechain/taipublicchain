@@ -27,11 +27,11 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/state"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etrue/downloader"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/params"
 	"github.com/taiyuechain/taipublicchain/rpc"
+	"github.com/taiyuechain/taipublicchain/tai/downloader"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 // Backend interface provides the common API services (that are provided by
@@ -41,7 +41,7 @@ type Backend interface {
 	Downloader() *downloader.Downloader
 	ProtocolVersion() int
 	SuggestPrice(ctx context.Context) (*big.Int, error)
-	ChainDb() etruedb.Database
+	ChainDb() taidb.Database
 	EventMux() *event.TypeMux
 	AccountManager() *accounts.Manager
 

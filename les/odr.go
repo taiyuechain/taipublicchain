@@ -20,20 +20,20 @@ import (
 	"context"
 
 	"github.com/taiyuechain/taipublicchain/core"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/light"
 	"github.com/taiyuechain/taipublicchain/log"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 // LesOdr implements light.OdrBackend
 type LesOdr struct {
-	db                                         etruedb.Database
+	db                                         taidb.Database
 	chtIndexer, bloomTrieIndexer, bloomIndexer *core.ChainIndexer
 	retriever                                  *retrieveManager
 	stop                                       chan struct{}
 }
 
-func NewLesOdr(db etruedb.Database, chtIndexer, bloomTrieIndexer, bloomIndexer *core.ChainIndexer, retriever *retrieveManager) *LesOdr {
+func NewLesOdr(db taidb.Database, chtIndexer, bloomTrieIndexer, bloomIndexer *core.ChainIndexer, retriever *retrieveManager) *LesOdr {
 	return &LesOdr{
 		db:               db,
 		chtIndexer:       chtIndexer,
@@ -50,7 +50,7 @@ func (odr *LesOdr) Stop() {
 }
 
 // Database returns the backing database
-func (odr *LesOdr) Database() etruedb.Database {
+func (odr *LesOdr) Database() taidb.Database {
 	return odr.db
 }
 

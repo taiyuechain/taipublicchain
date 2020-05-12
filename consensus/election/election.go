@@ -1,4 +1,4 @@
-// Copyright 2018 The TrueChain Authors
+// Copyright 2018 The Taichain Authors
 // This file is part of the taipublicchain library.
 //
 // The taipublicchain library is free software: you can redistribute it and/or modify
@@ -31,10 +31,10 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/snailchain/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 const (
@@ -165,7 +165,7 @@ type SnailBlockChain interface {
 
 	SubscribeChainEvent(ch chan<- types.SnailChainEvent) event.Subscription
 
-	GetDatabase() etruedb.Database
+	GetDatabase() taidb.Database
 
 	GetFruitByFastHash(fastHash common.Hash) (*types.SnailBlock, uint64)
 

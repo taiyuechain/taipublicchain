@@ -32,10 +32,10 @@ import (
 	//"github.com/taiyuechain/taipublicchain/core/vm"
 	//"crypto/rand"
 	chain "github.com/taiyuechain/taipublicchain/core/snailchain"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 	"gopkg.in/fatih/set.v0"
 )
 
@@ -125,7 +125,7 @@ type worker struct {
 	chain     *chain.SnailBlockChain
 	fastchain *core.BlockChain
 	proc      core.SnailValidator
-	chainDb   etruedb.Database
+	chainDb   taidb.Database
 
 	coinbase  common.Address
 	extra     []byte

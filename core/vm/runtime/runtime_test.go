@@ -25,7 +25,7 @@ import (
 	"github.com/taiyuechain/taipublicchain/common"
 	"github.com/taiyuechain/taipublicchain/core/state"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etruedb"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 func TestDefaults(t *testing.T) {
@@ -94,7 +94,7 @@ func TestExecute(t *testing.T) {
 }
 
 func TestCall(t *testing.T) {
-	state, _ := state.New(common.Hash{}, state.NewDatabase(etruedb.NewMemDatabase()))
+	state, _ := state.New(common.Hash{}, state.NewDatabase(taidb.NewMemDatabase()))
 	address := common.HexToAddress("0x0a")
 	state.SetCode(address, []byte{
 		byte(vm.PUSH1), 10,

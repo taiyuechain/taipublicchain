@@ -27,18 +27,18 @@ import (
 	"github.com/taiyuechain/taipublicchain/core"
 	"github.com/taiyuechain/taipublicchain/core/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/types"
-	"github.com/taiyuechain/taipublicchain/etrue"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/les/flowcontrol"
 	"github.com/taiyuechain/taipublicchain/light"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/p2p"
 	"github.com/taiyuechain/taipublicchain/p2p/discv5"
 	"github.com/taiyuechain/taipublicchain/rlp"
+	"github.com/taiyuechain/taipublicchain/tai"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 type LesServer struct {
-	config          *etrue.Config
+	config          *tai.Config
 	protocolManager *ProtocolManager
 	fcManager       *flowcontrol.ClientManager // nil if our node is client only
 	fcCostStats     *requestCostStats
@@ -50,7 +50,7 @@ type LesServer struct {
 	chtIndexer, bloomTrieIndexer *core.ChainIndexer
 }
 
-func NewLesServer(etrue *etrue.Taichain, config *etrue.Config) (*LesServer, error) {
+func NewLesServer(etrue *tai.Taichain, config *tai.Config) (*LesServer, error) {
 	quitSync := make(chan struct{})
 	pm, err := NewProtocolManager(etrue.BlockChain().Config(), false, ServerProtocolVersions, config.NetworkId, etrue.EventMux(), etrue.Engine(), newPeerSet(), nil, etrue.TxPool(), etrue.ChainDb(), nil, nil, nil, quitSync, new(sync.WaitGroup))
 	if err != nil {
@@ -225,7 +225,7 @@ func linRegFromBytes(data []byte) *linReg {
 
 type requestCostStats struct {
 	lock  sync.RWMutex
-	db    etruedb.Database
+	db    taidb.Database
 	stats map[uint64]*linReg
 }
 
@@ -236,7 +236,7 @@ type requestCostStatsRlp []struct {
 
 var rcStatsKey = []byte("_requestCostStats")
 
-func newCostStats(db etruedb.Database) *requestCostStats {
+func newCostStats(db taidb.Database) *requestCostStats {
 	stats := make(map[uint64]*linReg)
 	for _, code := range reqList {
 		stats[code] = &linReg{cnt: 100}

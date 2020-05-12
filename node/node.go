@@ -28,12 +28,12 @@ import (
 
 	"github.com/prometheus/prometheus/util/flock"
 	"github.com/taiyuechain/taipublicchain/accounts"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/internal/debug"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/p2p"
 	"github.com/taiyuechain/taipublicchain/rpc"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 // Node is a container on which services can be registered.
@@ -594,11 +594,11 @@ func (n *Node) Config() *Config {
 // OpenDatabase opens an existing database with the given name (or creates one if no
 // previous can be found) from within the node's instance directory. If the node is
 // ephemeral, a memory database is returned.
-func (n *Node) OpenDatabase(name string, cache, handles int) (etruedb.Database, error) {
+func (n *Node) OpenDatabase(name string, cache, handles int) (taidb.Database, error) {
 	if n.config.DataDir == "" {
-		return etruedb.NewMemDatabase(), nil
+		return taidb.NewMemDatabase(), nil
 	}
-	return etruedb.NewLDBDatabase(n.config.ResolvePath(name), cache, handles)
+	return taidb.NewLDBDatabase(n.config.ResolvePath(name), cache, handles)
 }
 
 // ResolvePath returns the absolute path of a resource in the instance directory.

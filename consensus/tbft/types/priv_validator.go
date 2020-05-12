@@ -39,7 +39,7 @@ func voteToStep(vote *Vote) uint8 {
 	}
 }
 
-// PrivValidator defines the functionality of a local TrueChain validator
+// PrivValidator defines the functionality of a local TaiChain validator
 // that signs votes, proposals, and heartbeats, and never double signs.
 type PrivValidator interface {
 	GetAddress() help.Address // redundant since .PubKey().Address()

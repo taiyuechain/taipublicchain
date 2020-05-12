@@ -34,12 +34,12 @@ import (
 	"github.com/taiyuechain/taipublicchain/core"
 	"github.com/taiyuechain/taipublicchain/core/snailchain/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/types"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/metrics"
 	"github.com/taiyuechain/taipublicchain/params"
 	"github.com/taiyuechain/taipublicchain/rlp"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 var (
@@ -73,7 +73,7 @@ const (
 // canonical chain.
 type SnailBlockChain struct {
 	chainConfig *params.ChainConfig // Chain & network configuration
-	db          etruedb.Database    // Low level persistent database to store final content in
+	db          taidb.Database      // Low level persistent database to store final content in
 
 	hc            *HeaderChain
 	chainFeed     event.Feed
@@ -112,7 +112,7 @@ type SnailBlockChain struct {
 // NewSnailBlockChain returns a fully initialised block chain using information
 // available in the database. It initialises the default Ethereum Validator and
 // Processor.
-func NewSnailBlockChain(db etruedb.Database, chainConfig *params.ChainConfig, engine consensus.Engine, blockchain *core.BlockChain) (*SnailBlockChain, error) {
+func NewSnailBlockChain(db taidb.Database, chainConfig *params.ChainConfig, engine consensus.Engine, blockchain *core.BlockChain) (*SnailBlockChain, error) {
 
 	bodyCache, _ := lru.New(bodyCacheLimit)
 	bodyRLPCache, _ := lru.New(bodyCacheLimit)
@@ -667,7 +667,7 @@ func (bc *SnailBlockChain) Rollback(chain []common.Hash) {
 }
 
 // GetDatabase Get lowlevel persistence database
-func (bc *SnailBlockChain) GetDatabase() etruedb.Database {
+func (bc *SnailBlockChain) GetDatabase() taidb.Database {
 	return bc.db
 }
 

@@ -18,15 +18,15 @@ package core
 
 import (
 	"github.com/taiyuechain/taipublicchain/common"
-	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/log"
 	ethash "github.com/taiyuechain/taipublicchain/consensus/minerva"
 	"github.com/taiyuechain/taipublicchain/core/rawdb"
 	"github.com/taiyuechain/taipublicchain/core/state"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etruedb"
+	"github.com/taiyuechain/taipublicchain/crypto"
+	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 	"math/big"
 	"sync"
 	"testing"
@@ -37,8 +37,6 @@ var (
 	canonicalSeed = 1
 	forkSeed      = 2
 )
-
-
 
 //The test block is inserted into the chain
 func TestInsertBlock(t *testing.T) {
@@ -154,7 +152,7 @@ func TestBadBlockHashes(t *testing.T)  { testBadHashes(t, true) }
 
 func testBadHashes(t *testing.T, full bool) {
 
-	engine 	  := ethash.NewFaker()
+	engine := ethash.NewFaker()
 	// Create a pristine chain and database
 	db, blockchain, err := newCanonical(engine, 0, full)
 	if err != nil {
@@ -189,7 +187,7 @@ func TestFastVsFullChains(t *testing.T) {
 	// Configure and generate a sample block chain
 
 	var (
-		gendb   = etruedb.NewMemDatabase()
+		gendb   = taidb.NewMemDatabase()
 		key, _  = crypto.HexToECDSA("b71c71a67e1177ad4e901695e1b4b9ee17ae16c6668d313eac2f96dbcda3f291")
 		address = crypto.PubkeyToAddress(key.PublicKey)
 		funds   = big.NewInt(1000000000)
@@ -199,9 +197,9 @@ func TestFastVsFullChains(t *testing.T) {
 		}
 		genesis = gspec.MustFastCommit(gendb)
 		signer  = types.NewTIP1Signer(gspec.Config.ChainID)
-		engine = ethash.NewFaker()
+		engine  = ethash.NewFaker()
 	)
-	blocks, receipts := GenerateChain(gspec.Config, genesis,engine , gendb, 1024, func(i int, block *BlockGen) {
+	blocks, receipts := GenerateChain(gspec.Config, genesis, engine, gendb, 1024, func(i int, block *BlockGen) {
 		block.SetCoinbase(common.Address{0x00})
 
 		// If the block number is multiple of 3, send a few bonus transactions to the miner
@@ -216,7 +214,7 @@ func TestFastVsFullChains(t *testing.T) {
 		}
 	})
 	// Import the chain as an archive node for the comparison baseline
-	archiveDb := etruedb.NewMemDatabase()
+	archiveDb := taidb.NewMemDatabase()
 	gspec.MustFastCommit(archiveDb)
 	archive, _ := NewBlockChain(archiveDb, nil, gspec.Config, engine, vm.Config{})
 	defer archive.Stop()
@@ -225,7 +223,7 @@ func TestFastVsFullChains(t *testing.T) {
 		t.Fatalf("failed to process block %d: %v", n, err)
 	}
 	// Fast import the chain as a non-archive node to test
-	fastDb := etruedb.NewMemDatabase()
+	fastDb := taidb.NewMemDatabase()
 	gspec.MustFastCommit(fastDb)
 	fast, _ := NewBlockChain(fastDb, nil, gspec.Config, ethash.NewFaker(), vm.Config{})
 	defer fast.Stop()
@@ -272,7 +270,7 @@ func TestFastVsFullChains(t *testing.T) {
 func TestLightVsFastVsFullChainHeads(t *testing.T) {
 	// Configure and generate a sample block chain
 	var (
-		gendb   = etruedb.NewMemDatabase()
+		gendb   = taidb.NewMemDatabase()
 		key, _  = crypto.HexToECDSA("b71c71a67e1177ad4e901695e1b4b9ee17ae16c6668d313eac2f96dbcda3f291")
 		address = crypto.PubkeyToAddress(key.PublicKey)
 		funds   = big.NewInt(1000000000)
@@ -302,7 +300,7 @@ func TestLightVsFastVsFullChainHeads(t *testing.T) {
 		}
 	}
 	// Import the chain as an archive node and ensure all pointers are updated
-	archiveDb := etruedb.NewMemDatabase()
+	archiveDb := taidb.NewMemDatabase()
 	gspec.MustFastCommit(archiveDb)
 
 	//engine1 := ethash.NewFaker()
@@ -318,7 +316,7 @@ func TestLightVsFastVsFullChainHeads(t *testing.T) {
 
 	log.Info("archive", "state", archive.CurrentBlock().Root())
 	// Import the chain as a non-archive node and ensure all pointers are updated
-	fastDb := etruedb.NewMemDatabase()
+	fastDb := taidb.NewMemDatabase()
 	gspec.MustFastCommit(fastDb)
 
 	engine = ethash.NewFaker()
@@ -356,7 +354,6 @@ func TestLightVsFastVsFullChainHeads(t *testing.T) {
 	//assert(t, "light", light, height/2, 0, 0)
 	//log.Info("light", "state", archive.CurrentBlock().Root())
 }
-
 
 // Tests if the canonical block can be fetched from the database during chain insertion.
 func TestCanonicalBlockRetrieval(t *testing.T) {
@@ -404,14 +401,13 @@ func TestCanonicalBlockRetrieval(t *testing.T) {
 	pend.Wait()
 }
 
-
 // Tests that importing small side forks doesn't leave junk in the trie database
 // cache (which would eventually cause memory issues).
 func TestTrieForkGC(t *testing.T) {
 	// Generate a canonical chain to act as the main dataset
 	engine := ethash.NewFaker()
 
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 	genesis := new(Genesis).MustFastCommit(db)
 	blocks, _ := GenerateChain(params.TestChainConfig, genesis, engine, db, 2*triesInMemory, func(i int, b *BlockGen) { b.SetCoinbase(common.Address{1}) })
 
@@ -426,7 +422,7 @@ func TestTrieForkGC(t *testing.T) {
 		forks[i] = fork[0]
 	}
 	// Import the canonical and fork chain side by side, forcing the trie cache to cache both
-	diskdb := etruedb.NewMemDatabase()
+	diskdb := taidb.NewMemDatabase()
 	new(Genesis).MustFastCommit(diskdb)
 
 	chain, err := NewBlockChain(diskdb, nil, params.TestChainConfig, engine, vm.Config{})
@@ -472,7 +468,7 @@ func benchmarkLargeNumberOfValueToNonexisting(b *testing.B, numTxs, numBlocks in
 	)
 	// Generate the original common chain segment and the two competing forks
 	engine := ethash.NewFaker()
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 	genesis := gspec.MustFastCommit(db)
 
 	blockGenerator := func(i int, block *BlockGen) {
@@ -494,7 +490,7 @@ func benchmarkLargeNumberOfValueToNonexisting(b *testing.B, numTxs, numBlocks in
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		// Import the shared chain and the original canonical one
-		diskdb := etruedb.NewMemDatabase()
+		diskdb := taidb.NewMemDatabase()
 		gspec.MustFastCommit(diskdb)
 
 		chain, err := NewBlockChain(diskdb, nil, params.TestChainConfig, engine, vm.Config{})

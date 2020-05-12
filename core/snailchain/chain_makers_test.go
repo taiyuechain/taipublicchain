@@ -25,9 +25,9 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
 	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 
 	"math/big"
 	"os"
@@ -51,7 +51,7 @@ func testExampleGenerateChain(t *testing.T, n int) {
 	var (
 		key1, _ = crypto.HexToECDSA("b71c71a67e1177ad4e901695e1b4b9ee17ae16c6668d313eac2f96dbcda3f291")
 		addr1   = crypto.PubkeyToAddress(key1.PublicKey)
-		db      = etruedb.NewMemDatabase()
+		db      = taidb.NewMemDatabase()
 		pow     = minerva.NewFaker()
 		gspec   = &core.Genesis{
 			Config:     params.TestChainConfig,
@@ -95,7 +95,7 @@ func testReward(t *testing.T, n int) {
 	//params.MinimumFruits = 1
 	params.MinTimeGap = big.NewInt(0)
 	var (
-		db  = etruedb.NewMemDatabase()
+		db  = taidb.NewMemDatabase()
 		pow = minerva.NewFaker()
 
 		key1, _ = crypto.HexToECDSA("b71c71a67e1177ad4e901695e1b4b9ee17ae16c6668d313eac2f96dbcda3f291")

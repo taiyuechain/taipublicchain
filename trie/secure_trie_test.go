@@ -24,18 +24,18 @@ import (
 
 	"github.com/taiyuechain/taipublicchain/common"
 	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/etruedb"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 func newEmptySecure() *SecureTrie {
-	trie, _ := NewSecure(common.Hash{}, NewDatabase(etruedb.NewMemDatabase()), 0)
+	trie, _ := NewSecure(common.Hash{}, NewDatabase(taidb.NewMemDatabase()), 0)
 	return trie
 }
 
 // makeTestSecureTrie creates a large enough secure trie for testing.
 func makeTestSecureTrie() (*Database, *SecureTrie, map[string][]byte) {
 	// Create an empty trie
-	triedb := NewDatabase(etruedb.NewMemDatabase())
+	triedb := NewDatabase(taidb.NewMemDatabase())
 
 	trie, _ := NewSecure(common.Hash{}, triedb, 0)
 

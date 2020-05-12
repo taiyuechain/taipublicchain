@@ -25,8 +25,8 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/state"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 // BlockGen creates blocks for testing.
@@ -174,7 +174,7 @@ func (b *BlockGen) OffsetTime(seconds int64) {
 // Blocks created by GenerateChain do not contain valid proof of work
 // values. Inserting them into BlockChain requires use of FakePow or
 // a similar non-validating proof of work implementation.
-func GenerateChain(config *params.ChainConfig, parent *types.Block, engine consensus.Engine, db etruedb.Database, n int, gen func(int, *BlockGen)) ([]*types.Block, []types.Receipts) {
+func GenerateChain(config *params.ChainConfig, parent *types.Block, engine consensus.Engine, db taidb.Database, n int, gen func(int, *BlockGen)) ([]*types.Block, []types.Receipts) {
 	if config == nil {
 		config = params.TestChainConfig
 	}
@@ -222,7 +222,7 @@ func GenerateChain(config *params.ChainConfig, parent *types.Block, engine conse
 	return blocks, receipts
 }
 
-func GenerateChainWithReward(config *params.ChainConfig, parent *types.Block, rewardSnailBlock *types.SnailBlock, engine consensus.Engine, db etruedb.Database, n int, gen func(int, *BlockGen)) ([]*types.Block, []types.Receipts) {
+func GenerateChainWithReward(config *params.ChainConfig, parent *types.Block, rewardSnailBlock *types.SnailBlock, engine consensus.Engine, db taidb.Database, n int, gen func(int, *BlockGen)) ([]*types.Block, []types.Receipts) {
 	if config == nil {
 		config = params.TestChainConfig
 	}
@@ -296,7 +296,7 @@ func makeHeader(chain consensus.ChainReader, parent *types.Block, state *state.S
 }
 
 // makeHeaderChain creates a deterministic chain of headers rooted at parent.
-func makeHeaderChain(parent *types.Header, n int, engine consensus.Engine, db etruedb.Database, seed int) []*types.Header {
+func makeHeaderChain(parent *types.Header, n int, engine consensus.Engine, db taidb.Database, seed int) []*types.Header {
 	blocks := makeBlockChain(types.NewBlockWithHeader(parent), n, engine, db, seed)
 	headers := make([]*types.Header, len(blocks))
 	for i, block := range blocks {
@@ -306,7 +306,7 @@ func makeHeaderChain(parent *types.Header, n int, engine consensus.Engine, db et
 }
 
 // makeBlockChain creates a deterministic chain of blocks rooted at parent.
-func makeBlockChain(parent *types.Block, n int, engine consensus.Engine, db etruedb.Database, seed int) []*types.Block {
+func makeBlockChain(parent *types.Block, n int, engine consensus.Engine, db taidb.Database, seed int) []*types.Block {
 	blocks, _ := GenerateChain(params.TestChainConfig, parent, engine, db, n, func(i int, b *BlockGen) {
 		b.SetCoinbase(common.Address{0: byte(seed), 19: byte(i)})
 
@@ -331,7 +331,7 @@ func (cr *fakeChainReader) GetHeaderByHash(hash common.Hash) *types.Header      
 func (cr *fakeChainReader) GetHeader(hash common.Hash, number uint64) *types.Header { return nil }
 func (cr *fakeChainReader) GetBlock(hash common.Hash, number uint64) *types.Block   { return nil }
 
-func NewCanonical(engine consensus.Engine, n int, full bool) (etruedb.Database, *BlockChain, error) {
+func NewCanonical(engine consensus.Engine, n int, full bool) (taidb.Database, *BlockChain, error) {
 	db, blockchain, err := newCanonical(engine, n, full)
 	return db, blockchain, err
 }
@@ -339,9 +339,9 @@ func NewCanonical(engine consensus.Engine, n int, full bool) (etruedb.Database, 
 // newCanonical creates a chain database, and injects a deterministic canonical
 // chain. Depending on the full flag, if creates either a full block chain or a
 // header only chain.
-func newCanonical(engine consensus.Engine, n int, full bool) (etruedb.Database, *BlockChain, error) {
+func newCanonical(engine consensus.Engine, n int, full bool) (taidb.Database, *BlockChain, error) {
 	var (
-		db = etruedb.NewMemDatabase()
+		db = taidb.NewMemDatabase()
 	)
 
 	BaseGenesis := DefaultGenesisBlock()

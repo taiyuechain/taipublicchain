@@ -30,11 +30,11 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/snailchain"
 	"github.com/taiyuechain/taipublicchain/core/state"
 	"github.com/taiyuechain/taipublicchain/core/types"
-	"github.com/taiyuechain/taipublicchain/etrue/downloader"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/event"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/tai/downloader"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 const (
@@ -48,7 +48,7 @@ type Backend interface {
 	BlockChain() *core.BlockChain
 	TxPool() *core.TxPool
 	SnailPool() *snailchain.SnailPool
-	ChainDb() etruedb.Database
+	ChainDb() taidb.Database
 }
 
 //CommitteeElection interface is Election module implementation committee interface

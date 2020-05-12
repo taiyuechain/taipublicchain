@@ -1,4 +1,4 @@
-// Copyright 2018 The TrueChain Authors
+// Copyright 2018 The TaiChain Authors
 // This file is part of the taipublicchain library.
 //
 // The taipublicchain library is free software: you can redistribute it and/or modify

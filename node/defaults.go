@@ -55,9 +55,9 @@ func DefaultDataDir() string {
 	home := homeDir()
 	if home != "" {
 		if runtime.GOOS == "darwin" {
-			return filepath.Join(home, "Library", "Truechain")
+			return filepath.Join(home, "Library", "Taichain")
 		} else if runtime.GOOS == "windows" {
-			return filepath.Join(home, "AppData", "Roaming", "Truechain")
+			return filepath.Join(home, "AppData", "Roaming", "Taichain")
 		} else {
 			return filepath.Join(home, ".taichain")
 		}

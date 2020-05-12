@@ -29,8 +29,8 @@ import (
 	"github.com/taiyuechain/taipublicchain/core"
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/core/vm"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/params"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 func TestValidateBody(t *testing.T) {
@@ -84,7 +84,7 @@ func TestValidateBody(t *testing.T) {
 
 func makeChain(n int, i int) (*SnailBlockChain, *core.BlockChain, *types.SnailBlock) {
 	var (
-		testdb = etruedb.NewMemDatabase()
+		testdb = taidb.NewMemDatabase()
 		// genesis = new(core.Genesis).MustSnailCommit(testdb)
 		genesis = core.DefaultGenesisBlock()
 		engine  = minerva.NewFaker()
@@ -139,7 +139,7 @@ func makeChain(n int, i int) (*SnailBlockChain, *core.BlockChain, *types.SnailBl
 	return snailChain, fastchain, block
 }
 
-func makeSnail(fastChain *core.BlockChain, parent *types.SnailBlock, n int, engine consensus.Engine, db etruedb.Database, seed int) []*types.SnailBlock {
+func makeSnail(fastChain *core.BlockChain, parent *types.SnailBlock, n int, engine consensus.Engine, db taidb.Database, seed int) []*types.SnailBlock {
 	blocks := GenerateChain(params.TestChainConfig, fastChain, []*types.SnailBlock{parent}, n, 7, func(i int, b *BlockGen) {
 		b.SetCoinbase(common.Address{0: byte(seed), 19: byte(i)})
 	})
@@ -147,7 +147,7 @@ func makeSnail(fastChain *core.BlockChain, parent *types.SnailBlock, n int, engi
 }
 
 // makeBlockChain creates a deterministic chain of blocks rooted at parent.
-func makeFast(parent *types.Block, n int, engine consensus.Engine, db etruedb.Database, seed int) []*types.Block {
+func makeFast(parent *types.Block, n int, engine consensus.Engine, db taidb.Database, seed int) []*types.Block {
 	engine.SetElection(election.NewFakeElection())
 	blocks, _ := core.GenerateChain(params.TestChainConfig, parent, engine, db, n, func(i int, b *core.BlockGen) {
 		b.SetCoinbase(common.Address{0: byte(seed), 19: byte(i)})

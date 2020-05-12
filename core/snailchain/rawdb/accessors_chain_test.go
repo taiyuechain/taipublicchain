@@ -22,15 +22,15 @@ import (
 
 	"github.com/taiyuechain/taipublicchain/common"
 	"github.com/taiyuechain/taipublicchain/core/types"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/params"
 	"github.com/taiyuechain/taipublicchain/rlp"
+	"github.com/taiyuechain/taipublicchain/taidb"
 	"golang.org/x/crypto/sha3"
 )
 
 // Tests block header storage and retrieval operations.
 func TestHeaderStorage(t *testing.T) {
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 
 	// Create a test header to move around the database and make sure it's really new
 	header := &types.SnailHeader{Number: big.NewInt(42), Extra: []byte("test header")}
@@ -63,7 +63,7 @@ func TestHeaderStorage(t *testing.T) {
 
 // Tests block body storage and retrieval operations.
 func TestBodyStorage(t *testing.T) {
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 
 	// Create a test body to move around the database and make sure it's really new
 	//body := &types.SnailBody{Fruits: []*types.Header{{Extra: []byte("test header")}}}
@@ -102,7 +102,7 @@ func TestBodyStorage(t *testing.T) {
 
 //// Tests block storage and retrieval operations.
 func TestBlockStorage(t *testing.T) {
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 
 	// Create a test block to move around the database and make sure it's really new
 	block := types.NewSnailBlockWithHeader(&types.SnailHeader{Extra: []byte("test header")})
@@ -146,7 +146,7 @@ func TestBlockStorage(t *testing.T) {
 //
 // Tests that partial block contents don't get reassembled into full blocks.
 func TestPartialBlockStorage(t *testing.T) {
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 	block := types.NewSnailBlockWithHeader(&types.SnailHeader{
 		Extra: []byte("test block"),
 	})
@@ -177,7 +177,7 @@ func TestPartialBlockStorage(t *testing.T) {
 
 // Tests block total difficulty storage and retrieval operations.
 func TestTdStorage(t *testing.T) {
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 
 	// Create a test TD to move around the database and make sure it's really new
 	hash, td := common.Hash{}, big.NewInt(314)
@@ -200,7 +200,7 @@ func TestTdStorage(t *testing.T) {
 
 // Tests that canonical numbers can be mapped to hashes and retrieved.
 func TestCanonicalMappingStorage(t *testing.T) {
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 
 	// Create a test canonical number and assinged hash to move around
 	hash, number := common.Hash{0: 0xff}, uint64(314)
@@ -223,7 +223,7 @@ func TestCanonicalMappingStorage(t *testing.T) {
 
 // Tests that head headers and head blocks can be assigned, individually.
 func TestHeadStorage(t *testing.T) {
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 
 	blockHead := types.NewBlockWithHeader(&types.Header{Extra: []byte("test block header")})
 	blockFull := types.NewBlockWithHeader(&types.Header{Extra: []byte("test block full")})
@@ -257,7 +257,7 @@ func TestHeadStorage(t *testing.T) {
 }
 
 func TestCommitteeStates(t *testing.T) {
-	db := etruedb.NewMemDatabase()
+	db := taidb.NewMemDatabase()
 
 	stateNums := []int64{10, 12, 14}
 	updateNums := []int64{10, 12, 14, 20, 30}

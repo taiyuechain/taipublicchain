@@ -22,8 +22,8 @@ import (
 
 	"github.com/taiyuechain/taipublicchain/common"
 	"github.com/taiyuechain/taipublicchain/crypto"
-	"github.com/taiyuechain/taipublicchain/etruedb"
 	"github.com/taiyuechain/taipublicchain/rlp"
+	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
 // NodeSet stores a set of trie nodes. It implements trie.Database and can also
@@ -106,7 +106,7 @@ func (db *NodeSet) NodeList() NodeList {
 }
 
 // Store writes the contents of the set to the given database
-func (db *NodeSet) Store(target etruedb.Putter) {
+func (db *NodeSet) Store(target taidb.Putter) {
 	db.lock.RLock()
 	defer db.lock.RUnlock()
 
@@ -119,7 +119,7 @@ func (db *NodeSet) Store(target etruedb.Putter) {
 type NodeList []rlp.RawValue
 
 // Store writes the contents of the list to the given database
-func (n NodeList) Store(db etruedb.Putter) {
+func (n NodeList) Store(db taidb.Putter) {
 	for _, node := range n {
 		db.Put(crypto.Keccak256(node), node)
 	}
