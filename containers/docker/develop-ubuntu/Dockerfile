@@ -11,7 +11,7 @@ RUN \
   apt-get remove -y golang-1.9 git make gcc libc-dev && apt autoremove -y && apt-get clean && \
   rm -rf /taipublicchain
 
-EXPOSE 8545
-EXPOSE 30303
+EXPOSE 7545
+EXPOSE 30513
 
 ENTRYPOINT ["/taipublic"]

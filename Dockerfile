@@ -13,7 +13,7 @@ RUN apk add --no-cache ca-certificates
 COPY --from=construction /taipublicchain/build/bin/taipublic /usr/local/bin/
 CMD ["taipublic"]
 
-EXPOSE 8545 8545 9215 9215 30310 30310 30311 30311 30313 30313
+EXPOSE 7545 7545 9215 9215 30310 30310 30311 30311 30513 30513
 ENTRYPOINT ["taipublic"]
 
 
