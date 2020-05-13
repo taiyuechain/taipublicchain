@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/taiyuechain/taiyuechain/common/mclock"
+	"github.com/taiyuechain/taipublicchain/common/mclock"
 )
 
 const (
