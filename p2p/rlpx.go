@@ -70,7 +70,7 @@ const (
 	// to wait if the connection is known to be bad anyway.
 	discWriteTimeout = 1 * time.Second
 
-	TrueRLPXVersion = 5
+	TrueRLPXVersion = 13
 )
 
 // errPlainMessageTooLarge is returned if a decompressed message length exceeds
