@@ -1192,8 +1192,8 @@ func TestPutNodes(t *testing.T) {
 	*config1 = *config.TestConfig()
 	p2p1 := new(config.P2PConfig)
 	*p2p1 = *config1.P2P
-	p2p1.ListenAddress1 = "tcp://39.98.44.213:30310"
-	p2p1.ListenAddress2 = "tcp://39.98.44.213:30311"
+	p2p1.ListenAddress1 = "tcp://39.98.44.213:30510"
+	p2p1.ListenAddress2 = "tcp://39.98.44.213:30511"
 	*config1.P2P = *p2p1
 
 	con1 := new(config.ConsensusConfig)
@@ -1223,10 +1223,10 @@ func TestPutNodes(t *testing.T) {
 	c1.StartHeight = common.Big1
 
 	cn := make([]*types.CommitteeNode, 0)
-	cn = append(cn, &types.CommitteeNode{IP: "39.98.44.213", Port: 30310, Port2: 30311, Coinbase: m1.Coinbase, Publickey: m1.Publickey})
-	cn = append(cn, &types.CommitteeNode{IP: "39.98.58.86", Port: 30310, Port2: 30311, Coinbase: m2.Coinbase, Publickey: m2.Publickey})
-	cn = append(cn, &types.CommitteeNode{IP: "39.98.56.108", Port: 30310, Port2: 30311, Coinbase: m3.Coinbase, Publickey: m3.Publickey})
-	cn = append(cn, &types.CommitteeNode{IP: "39.98.36.181", Port: 30310, Port2: 30311, Coinbase: m4.Coinbase, Publickey: m4.Publickey})
+	cn = append(cn, &types.CommitteeNode{IP: "39.98.44.213", Port: 30510, Port2: 30311, Coinbase: m1.Coinbase, Publickey: m1.Publickey})
+	cn = append(cn, &types.CommitteeNode{IP: "39.98.58.86", Port: 30510, Port2: 30311, Coinbase: m2.Coinbase, Publickey: m2.Publickey})
+	cn = append(cn, &types.CommitteeNode{IP: "39.98.56.108", Port: 30510, Port2: 30311, Coinbase: m3.Coinbase, Publickey: m3.Publickey})
+	cn = append(cn, &types.CommitteeNode{IP: "39.98.36.181", Port: 30510, Port2: 30311, Coinbase: m4.Coinbase, Publickey: m4.Publickey})
 
 	n1.PutCommittee(c1)
 	n1.PutNodes(common.Big1, cn)

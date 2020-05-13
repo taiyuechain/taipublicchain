@@ -152,9 +152,9 @@ type P2PConfig struct {
 // DefaultP2PConfig returns a default configuration for the peer-to-peer layer
 func DefaultP2PConfig() *P2PConfig {
 	return &P2PConfig{
-		ListenAddress1:          "tcp://0.0.0.0:30310",
-		ListenAddress2:          "tcp://0.0.0.0:30311",
-		ExternalAddress:         "tcp://0.0.0.0:30411",
+		ListenAddress1:          "tcp://0.0.0.0:30510",
+		ListenAddress2:          "tcp://0.0.0.0:30511",
+		ExternalAddress:         "tcp://0.0.0.0:30611",
 		UPNP:                    false,
 		AddrBook:                defaultAddrBookPath,
 		AddrBookStrict:          true,

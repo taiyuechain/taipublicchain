@@ -64,8 +64,8 @@ var DefaultConfig = Config{
 		Percentile: 60,
 	},
 	MinerThreads: 2,
-	Port:         30310,
-	StandbyPort:  30311,
+	Port:         30510,
+	StandbyPort:  30511,
 }
 
 func init() {
