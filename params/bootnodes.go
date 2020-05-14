@@ -19,7 +19,7 @@ package params
 // MainnetBootnodes are the enode URLs of the P2P bootstrap nodes running on
 // the main Taichain network.
 var MainnetBootnodes = []string{
-	"enode://fb331ff6aded86b393d9de2f9c449d313b356af0c4c0b9500e0f6c51bcb4ed31ca45dc2ab64c6182d1876eb9e3fd073d488277a40a6d357bc6e63350a2e00ffc@101.132.183.35:30313", // CN
+	"enode://0718753a5521862e5decb342e741ab5a649297229c812899dcdf2412c562e55174fd717dbc8005133273856455afa13054c79a69f7bf1b5701014b2ab6ff17b8@39.98.214.163:30513",
 }
 
 // TestnetBootnodes are the enode URLs of the P2P bootstrap nodes running on the
