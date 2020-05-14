@@ -293,10 +293,8 @@ func TestSetupSnailGenesis(t *testing.T) {
 //key c956ff03fe677997ea7263d1c556f64753cb8a9052e00d63af0e856c826afce1
 //key 5a50006127177451cd54601a2bbc16a1879b7001a77de797b55f7916e9f4adaa
 func TestGenerateKey(t *testing.T) {
-	for i := 0; i < 4; i++ {
-		key, _ := crypto.GenerateKey()
-		fmt.Println("key", hex.EncodeToString(crypto.FromECDSA(key)))
-		fmt.Println("pub", hex.EncodeToString(crypto.FromECDSAPub(&key.PublicKey)))
-		fmt.Println("address", crypto.PubkeyToAddress(key.PublicKey).String())
-	}
+	key, _ := crypto.HexToECDSA("1fd4aebbe8cfe18d527f6b3b3b8c16f83336ab987963a6d256b078f2386bf916")
+	fmt.Println("key", hex.EncodeToString(crypto.FromECDSA(key)))
+	fmt.Println("pub", hex.EncodeToString(crypto.FromECDSAPub(&key.PublicKey)))
+	fmt.Println("address", crypto.PubkeyToAddress(key.PublicKey).String())
 }
