@@ -23,7 +23,7 @@ import (
 // collectCommitteeData gathers data about the committee and sends it to the clients.
 func (db *Dashboard) collectCommitteeData() {
 	defer db.wg.Done()
-	agent := db.etrue.PbftAgent()
+	agent := db.etai.PbftAgent()
 
 	for {
 		select {

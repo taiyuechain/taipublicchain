@@ -43,18 +43,18 @@ const (
 
 // startBloomHandlers starts a batch of goroutines to accept bloom bit database
 // retrievals from possibly a range of filters and serving the data to satisfy.
-func (etrue *LightEtrue) startBloomHandlers() {
+func (etai *LightEtai) startBloomHandlers() {
 	for i := 0; i < bloomServiceThreads; i++ {
 		go func() {
 			for {
 				select {
-				case <-etrue.shutdownChan:
+				case <-etai.shutdownChan:
 					return
 
-				case request := <-etrue.bloomRequests:
+				case request := <-etai.bloomRequests:
 					task := <-request
 					task.Bitsets = make([][]byte, len(task.Sections))
-					compVectors, err := light.GetBloomBits(task.Context, etrue.odr, task.Bit, task.Sections)
+					compVectors, err := light.GetBloomBits(task.Context, etai.odr, task.Bit, task.Sections)
 					if err == nil {
 						for i := range task.Sections {
 							if blob, err := bitutil.DecompressBytes(compVectors[i], int(light.BloomTrieFrequency/8)); err == nil {

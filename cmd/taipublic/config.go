@@ -53,15 +53,15 @@ var tomlSettings = toml.Config{
 	},
 }
 
-type etruestatsConfig struct {
+type etaistatsConfig struct {
 	URL string `toml:",omitempty"`
 }
 
 type gethConfig struct {
-	Etrue      tai.Config
-	Node       node.Config
-	Etruestats etruestatsConfig
-	Dashboard  dashboard.Config
+	Etai      tai.Config
+	Node      node.Config
+	Etaistats etaistatsConfig
+	Dashboard dashboard.Config
 }
 
 func loadConfig(file string, cfg *gethConfig) error {
@@ -83,8 +83,8 @@ func defaultNodeConfig() node.Config {
 	cfg := node.DefaultConfig
 	cfg.Name = clientIdentifier
 	cfg.Version = params.VersionWithCommit(gitCommit)
-	cfg.HTTPModules = append(cfg.HTTPModules, "etrue", "eth", "shh")
-	cfg.WSModules = append(cfg.WSModules, "etrue")
+	cfg.HTTPModules = append(cfg.HTTPModules, "etai", "eth", "shh")
+	cfg.WSModules = append(cfg.WSModules, "etai")
 	cfg.IPCPath = "taipublic.ipc"
 	return cfg
 }
@@ -92,7 +92,7 @@ func defaultNodeConfig() node.Config {
 func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	// Load defaults.
 	cfg := gethConfig{
-		Etrue:     tai.DefaultConfig,
+		Etai:      tai.DefaultConfig,
 		Node:      defaultNodeConfig(),
 		Dashboard: dashboard.DefaultConfig,
 	}
@@ -110,9 +110,9 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	if err != nil {
 		utils.Fatalf("Failed to create the protocol stack: %v", err)
 	}
-	utils.SetTruechainConfig(ctx, stack, &cfg.Etrue)
-	if ctx.GlobalIsSet(utils.EtrueStatsURLFlag.Name) {
-		cfg.Etruestats.URL = ctx.GlobalString(utils.EtrueStatsURLFlag.Name)
+	utils.SetTruechainConfig(ctx, stack, &cfg.Etai)
+	if ctx.GlobalIsSet(utils.EtaiStatsURLFlag.Name) {
+		cfg.Etaistats.URL = ctx.GlobalString(utils.EtaiStatsURLFlag.Name)
 	}
 
 	utils.SetDashboardConfig(ctx, &cfg.Dashboard)
@@ -123,15 +123,15 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 func makeFullNode(ctx *cli.Context) *node.Node {
 	stack, cfg := makeConfigNode(ctx)
 
-	utils.RegisterEtrueService(stack, &cfg.Etrue)
+	utils.RegisterEtaiService(stack, &cfg.Etai)
 
 	if ctx.GlobalBool(utils.DashboardEnabledFlag.Name) {
 		utils.RegisterDashboardService(stack, &cfg.Dashboard, gitCommit)
 	}
 
 	// Add the Taichain Stats daemon if requested.
-	if cfg.Etruestats.URL != "" {
-		utils.RegisterEtrueStatsService(stack, cfg.Etruestats.URL)
+	if cfg.Etaistats.URL != "" {
+		utils.RegisterEtaiStatsService(stack, cfg.Etaistats.URL)
 	}
 	return stack
 }
@@ -141,8 +141,8 @@ func dumpConfig(ctx *cli.Context) error {
 	_, cfg := makeConfigNode(ctx)
 	comment := ""
 
-	if cfg.Etrue.Genesis != nil {
-		cfg.Etrue.Genesis = nil
+	if cfg.Etai.Genesis != nil {
+		cfg.Etai.Genesis = nil
 		comment += "# Note: this config doesn't contain the genesis block.\n\n"
 	}
 

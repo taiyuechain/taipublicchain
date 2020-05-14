@@ -259,7 +259,7 @@ func getAddressBalance(addresses []common.Address, statedb *state.StateDB) (bala
 //		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
 //		addr3   = crypto.PubkeyToAddress(key3.PublicKey)
 //		addr4   = crypto.PubkeyToAddress(key4.PublicKey)
-//		db      = etruedb.NewMemDatabase()
+//		db      = taidb.NewMemDatabase()
 //	)
 //	recvAddr := crypto.CreateAddress(common.Address{0}, 10)
 //	// Ensure that key1 has some funds in the genesis block.
@@ -338,8 +338,8 @@ func getAddressBalance(addresses []common.Address, statedb *state.StateDB) (bala
 //		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
 //		addr3   = crypto.PubkeyToAddress(key3.PublicKey)
 //		addr4   = crypto.PubkeyToAddress(key4.PublicKey)
-//		db      = etruedb.NewMemDatabase()
-//		tmpDB   = etruedb.NewMemDatabase()
+//		db      = taidb.NewMemDatabase()
+//		tmpDB   = taidb.NewMemDatabase()
 //	)
 //	recvAddr := crypto.CreateAddress(common.Address{0}, 10)
 //	recvAddr2 := crypto.CreateAddress(common.Address{0}, 50)
@@ -445,7 +445,7 @@ func getAddressBalance(addresses []common.Address, statedb *state.StateDB) (bala
 //
 //func verifyInBatch(sum, count int) {
 //	var (
-//		db = etruedb.NewMemDatabase()
+//		db = taidb.NewMemDatabase()
 //	)
 //	type tmpItem struct {
 //		sign []byte

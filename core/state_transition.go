@@ -22,8 +22,8 @@ import (
 	"math/big"
 
 	"github.com/taiyuechain/taipublicchain/common"
-	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/core/vm"
+	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/params"
 )
 
@@ -256,7 +256,7 @@ func (st *StateTransition) refundGas() {
 	}
 	st.gas += refund
 
-	// Return etrue for remaining gas, exchanged at the original rate.
+	// Return etai for remaining gas, exchanged at the original rate.
 	remaining := new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
 	if st.msg.Payment() != params.EmptyAddress {
 		st.state.AddBalance(st.msg.Payment(), remaining)

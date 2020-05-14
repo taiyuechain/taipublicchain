@@ -44,7 +44,7 @@ type snailBlockInfo struct {
 // collectMinerData gathers data about the miner and sends it to the clients.
 func (db *Dashboard) collectMinerData() {
 	defer db.wg.Done()
-	block := db.etrue.Miner().GetCurrentBlock()
+	block := db.etai.Miner().GetCurrentBlock()
 
 	for {
 		select {

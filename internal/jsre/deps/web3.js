@@ -926,7 +926,7 @@ var SolidityParam = require('./param');
  * @returns {SolidityParam}
  */
 var formatInputInt = function (value) {
-    BigNumber.config(c.ETRUE_BIGNUMBER_ROUNDING_MODE);
+    BigNumber.config(c.ETAI_BIGNUMBER_ROUNDING_MODE);
     var result = utils.padLeft(utils.toTwosComplement(value).toString(16), 64);
     return new SolidityParam(result);
 };
@@ -1758,10 +1758,10 @@ if (typeof XMLHttpRequest === 'undefined') {
  */
 
 
-/// required to define ETRUE_BIGNUMBER_ROUNDING_MODE
+/// required to define ETAI_BIGNUMBER_ROUNDING_MODE
 var BigNumber = require('bignumber.js');
 
-var ETRUE_UNITS = [
+var ETAI_UNITS = [
     'wei',
     'kwei',
     'Mwei',
@@ -1776,13 +1776,13 @@ var ETRUE_UNITS = [
     'nano',
     'micro',
     'milli',
-    'etrue',
+    'etai',
     'grand',
-    'Metrue',
+    'Metai',
     'Gtrue',
     'Ttrue',
     'Ptrue',
-    'Etrue',
+    'Etai',
     'Ztrue',
     'Ytrue',
     'Ntrue',
@@ -1792,11 +1792,11 @@ var ETRUE_UNITS = [
 ];
 
 module.exports = {
-    ETRUE_PADDING: 32,
-    ETRUE_SIGNATURE_LENGTH: 4,
-    ETRUE_UNITS: ETRUE_UNITS,
-    ETRUE_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
-    ETRUE_POLLING_TIMEOUT: 1000/2,
+    ETAI_PADDING: 32,
+    ETAI_SIGNATURE_LENGTH: 4,
+    ETAI_UNITS: ETAI_UNITS,
+    ETAI_BIGNUMBER_ROUNDING_MODE: { ROUNDING_MODE: BigNumber.ROUND_DOWN },
+    ETAI_POLLING_TIMEOUT: 1000/2,
     defaultBlock: 'latest',
     defaultAccount: undefined
 };
@@ -2508,7 +2508,7 @@ module.exports={
 
 var RequestManager = require('./web3/requestmanager');
 var Iban = require('./web3/iban');
-var Etrue = require('./web3/methods/etrue');
+var Etai = require('./web3/methods/etai');
 var DB = require('./web3/methods/db');
 var Shh = require('./web3/methods/shh');
 var Net = require('./web3/methods/net');
@@ -2530,7 +2530,7 @@ var BigNumber = require('bignumber.js');
 function Web3 (provider) {
     this._requestManager = new RequestManager(provider);
     this.currentProvider = provider;
-    this.etrue = new Etrue(this);
+    this.etai = new Etai(this);
     this.db = new DB(this);
     this.shh = new Shh(this);
     this.net = new Net(this);
@@ -2610,7 +2610,7 @@ var properties = function () {
         }),
         new Property({
             name: 'version.ethereum',
-            getter: 'etrue_protocolVersion',
+            getter: 'etai_protocolVersion',
             inputFormatter: utils.toDecimal
         })
     ];
@@ -2627,7 +2627,7 @@ Web3.prototype.createBatch = function () {
 module.exports = Web3;
 
 
-},{"./utils/sha3":19,"./utils/utils":20,"./version.json":21,"./web3/batch":24,"./web3/extend":28,"./web3/httpprovider":32,"./web3/iban":33,"./web3/ipcprovider":34,"./web3/methods/db":37,"./web3/methods/etrue":38,"./web3/methods/net":39,"./web3/methods/personal":40,"./web3/methods/shh":41,"./web3/methods/swarm":42,"./web3/property":45,"./web3/requestmanager":46,"./web3/settings":47,"bignumber.js":"bignumber.js"}],23:[function(require,module,exports){
+},{"./utils/sha3":19,"./utils/utils":20,"./version.json":21,"./web3/batch":24,"./web3/extend":28,"./web3/httpprovider":32,"./web3/iban":33,"./web3/ipcprovider":34,"./web3/methods/db":37,"./web3/methods/etai":38,"./web3/methods/net":39,"./web3/methods/personal":40,"./web3/methods/shh":41,"./web3/methods/swarm":42,"./web3/property":45,"./web3/requestmanager":46,"./web3/settings":47,"bignumber.js":"bignumber.js"}],23:[function(require,module,exports){
 /*
     This file is part of web3.js.
 
@@ -2706,7 +2706,7 @@ AllSolidityEvents.prototype.execute = function (options, callback) {
 
     var o = this.encode(options);
     var formatter = this.decode.bind(this);
-    return new Filter(o, 'etrue', this._requestManager, watches.etrue(), formatter, callback);
+    return new Filter(o, 'etai', this._requestManager, watches.etai(), formatter, callback);
 };
 
 AllSolidityEvents.prototype.attachToContract = function (contract) {
@@ -2844,7 +2844,7 @@ var addFunctionsToContract = function (contract) {
     contract.abi.filter(function (json) {
         return json.type === 'function';
     }).map(function (json) {
-        return new SolidityFunction(contract._etrue, json, contract.address);
+        return new SolidityFunction(contract._etai, json, contract.address);
     }).forEach(function (f) {
         f.attachToContract(contract);
     });
@@ -2862,11 +2862,11 @@ var addEventsToContract = function (contract) {
         return json.type === 'event';
     });
 
-    var All = new AllEvents(contract._etrue._requestManager, events, contract.address);
+    var All = new AllEvents(contract._etai._requestManager, events, contract.address);
     All.attachToContract(contract);
 
     events.map(function (json) {
-        return new SolidityEvent(contract._etrue._requestManager, json, contract.address);
+        return new SolidityEvent(contract._etai._requestManager, json, contract.address);
     }).forEach(function (e) {
         e.attachToContract(contract);
     });
@@ -2886,7 +2886,7 @@ var checkForContractAddress = function(contract, callback){
         callbackFired = false;
 
     // wait for receipt
-    var filter = contract._etrue.filter('latest', function(e){
+    var filter = contract._etai.filter('latest', function(e){
         if (!e && !callbackFired) {
             count++;
 
@@ -2904,10 +2904,10 @@ var checkForContractAddress = function(contract, callback){
 
             } else {
 
-                contract._etrue.getTransactionReceipt(contract.transactionHash, function(e, receipt){
+                contract._etai.getTransactionReceipt(contract.transactionHash, function(e, receipt){
                     if(receipt && !callbackFired) {
 
-                        contract._etrue.getCode(receipt.contractAddress, function(e, code){
+                        contract._etai.getCode(receipt.contractAddress, function(e, code){
                             /*jshint maxcomplexity: 6 */
 
                             if(callbackFired || !code)
@@ -2950,8 +2950,8 @@ var checkForContractAddress = function(contract, callback){
  * @method ContractFactory
  * @param {Array} abi
  */
-var ContractFactory = function (etrue, abi) {
-    this.etrue = etrue;
+var ContractFactory = function (etai, abi) {
+    this.etai = etai;
     this.abi = abi;
 
     /**
@@ -2967,7 +2967,7 @@ var ContractFactory = function (etrue, abi) {
     this.new = function () {
         /*jshint maxcomplexity: 7 */
         
-        var contract = new Contract(this.etrue, this.abi);
+        var contract = new Contract(this.etai, this.abi);
 
         // parse arguments
         var options = {}; // required!
@@ -2999,7 +2999,7 @@ var ContractFactory = function (etrue, abi) {
         if (callback) {
 
             // wait for the contract address adn check if the code was deployed
-            this.etrue.sendTransaction(options, function (err, hash) {
+            this.etai.sendTransaction(options, function (err, hash) {
                 if (err) {
                     callback(err);
                 } else {
@@ -3013,7 +3013,7 @@ var ContractFactory = function (etrue, abi) {
                 }
             });
         } else {
-            var hash = this.etrue.sendTransaction(options);
+            var hash = this.etai.sendTransaction(options);
             // add the transaction hash
             contract.transactionHash = hash;
             checkForContractAddress(contract);
@@ -3048,7 +3048,7 @@ var ContractFactory = function (etrue, abi) {
  * otherwise calls callback function (err, contract)
  */
 ContractFactory.prototype.at = function (address, callback) {
-    var contract = new Contract(this.etrue, this.abi, address);
+    var contract = new Contract(this.etai, this.abi, address);
 
     // this functions are not part of prototype,
     // because we dont want to spoil the interface
@@ -3088,8 +3088,8 @@ ContractFactory.prototype.getData = function () {
  * @param {Array} abi
  * @param {Address} contract address
  */
-var Contract = function (etrue, abi, address) {
-    this._etrue = etrue;
+var Contract = function (etai, abi, address) {
+    this._etai = etai;
     this.transactionHash = null;
     this.address = address;
     this.abi = abi;
@@ -3331,7 +3331,7 @@ SolidityEvent.prototype.execute = function (indexed, options, callback) {
 
     var o = this.encode(indexed, options);
     var formatter = this.decode.bind(this);
-    return new Filter(o, 'etrue', this._requestManager, watches.etrue(), formatter, callback);
+    return new Filter(o, 'etai', this._requestManager, watches.etai(), formatter, callback);
 };
 
 /**
@@ -3465,7 +3465,7 @@ var getOptions = function (options, type) {
 
 
     switch(type) {
-        case 'etrue':
+        case 'etai':
 
             // make sure topics, get converted to hex
             options.topics = options.topics || [];
@@ -4049,8 +4049,8 @@ var sha3 = require('../utils/sha3');
 /**
  * This prototype should be used to call/sendTransaction to solidity functions
  */
-var SolidityFunction = function (etrue, json, address) {
-    this._etrue = etrue;
+var SolidityFunction = function (etai, json, address) {
+    this._etai = etai;
     this._inputTypes = json.inputs.map(function (i) {
         return i.type;
     });
@@ -4152,12 +4152,12 @@ SolidityFunction.prototype.call = function () {
 
 
     if (!callback) {
-        var output = this._etrue.call(payload, defaultBlock);
+        var output = this._etai.call(payload, defaultBlock);
         return this.unpackOutput(output);
     }
 
     var self = this;
-    this._etrue.call(payload, defaultBlock, function (error, output) {
+    this._etai.call(payload, defaultBlock, function (error, output) {
         if (error) return callback(error, null);
 
         var unpacked = null;
@@ -4187,10 +4187,10 @@ SolidityFunction.prototype.sendTransaction = function () {
     }
 
     if (!callback) {
-        return this._etrue.sendTransaction(payload);
+        return this._etai.sendTransaction(payload);
     }
 
-    this._etrue.sendTransaction(payload, callback);
+    this._etai.sendTransaction(payload, callback);
 };
 
 /**
@@ -4204,10 +4204,10 @@ SolidityFunction.prototype.estimateGas = function () {
     var payload = this.toPayload(args);
 
     if (!callback) {
-        return this._etrue.estimateGas(payload);
+        return this._etai.estimateGas(payload);
     }
 
-    this._etrue.estimateGas(payload, callback);
+    this._etai.estimateGas(payload, callback);
 };
 
 /**
@@ -4256,7 +4256,7 @@ SolidityFunction.prototype.request = function () {
     var format = this.unpackOutput.bind(this);
 
     return {
-        method: this._constant ? 'etrue_call' : 'etrue_sendTransaction',
+        method: this._constant ? 'etai_call' : 'etai_sendTransaction',
         callback: callback,
         params: [payload],
         format: format
@@ -5238,7 +5238,7 @@ module.exports = DB;
     along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * @file etrue.js
+ * @file etai.js
  * @author Marek Kotewicz <marek@ethdev.com>
  * @author Fabian Vogelsteller <fabian@ethdev.com>
  * @date 2015
@@ -5260,43 +5260,43 @@ var Iban = require('../iban');
 var transfer = require('../transfer');
 
 var blockCall = function (args) {
-    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etrue_getBlockByHash" : "etrue_getBlockByNumber";
+    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etai_getBlockByHash" : "etai_getBlockByNumber";
 };
 
 var snailBlockCall = function (args) {
-    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etrue_getSnailBlockByHash" : "etrue_getSnailBlockByNumber";
+    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etai_getSnailBlockByHash" : "etai_getSnailBlockByNumber";
 };
 
 var fruitCall = function (args) {
-    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etrue_getFruitByHash" : "etrue_getFruitByNumber";
+    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etai_getFruitByHash" : "etai_getFruitByNumber";
 };
 
 var transactionFromBlockCall = function (args) {
-    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getTransactionByBlockHashAndIndex' : 'etrue_getTransactionByBlockNumberAndIndex';
+    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etai_getTransactionByBlockHashAndIndex' : 'etai_getTransactionByBlockNumberAndIndex';
 };
 
 var fruitFromBlockCall = function (args) {
-    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getFruitByBlockHashAndIndex' : 'etrue_getFruitByBlockNumberAndIndex';
+    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etai_getFruitByBlockHashAndIndex' : 'etai_getFruitByBlockNumberAndIndex';
 };
 
 var uncleCall = function (args) {
-    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getUncleByBlockHashAndIndex' : 'etrue_getUncleByBlockNumberAndIndex';
+    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etai_getUncleByBlockHashAndIndex' : 'etai_getUncleByBlockNumberAndIndex';
 };
 
 var getBlockTransactionCountCall = function (args) {
-    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getBlockTransactionCountByHash' : 'etrue_getBlockTransactionCountByNumber';
+    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etai_getBlockTransactionCountByHash' : 'etai_getBlockTransactionCountByNumber';
 };
 
 var getBlockFruitCountCall = function (args) {
-  return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getBlockFruitCountByHash' : 'etrue_getBlockFrtuitCountByNumber';
+  return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etai_getBlockFruitCountByHash' : 'etai_getBlockFrtuitCountByNumber';
   };
 
 
 var uncleCountCall = function (args) {
-    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getUncleCountByBlockHash' : 'etrue_getUncleCountByBlockNumber';
+    return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etai_getUncleCountByBlockHash' : 'etai_getUncleCountByBlockNumber';
 };
 
-function Etrue(web3) {
+function Etai(web3) {
     this._requestManager = web3._requestManager;
 
     var self = this;
@@ -5316,7 +5316,7 @@ function Etrue(web3) {
     this.sendIBANTransaction = transfer.bind(null, this);
 }
 
-Object.defineProperty(Etrue.prototype, 'defaultBlock', {
+Object.defineProperty(Etai.prototype, 'defaultBlock', {
     get: function () {
         return c.defaultBlock;
     },
@@ -5326,7 +5326,7 @@ Object.defineProperty(Etrue.prototype, 'defaultBlock', {
     }
 });
 
-Object.defineProperty(Etrue.prototype, 'defaultAccount', {
+Object.defineProperty(Etai.prototype, 'defaultAccount', {
     get: function () {
         return c.defaultAccount;
     },
@@ -5339,7 +5339,7 @@ Object.defineProperty(Etrue.prototype, 'defaultAccount', {
 var methods = function () {
     var getBalance = new Method({
         name: 'getBalance',
-        call: 'etrue_getBalance',
+        call: 'etai_getBalance',
         params: 2,
         inputFormatter: [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter],
         outputFormatter: formatters.outputBigNumberFormatter
@@ -5347,14 +5347,14 @@ var methods = function () {
 
     var getStorageAt = new Method({
         name: 'getStorageAt',
-        call: 'etrue_getStorageAt',
+        call: 'etai_getStorageAt',
         params: 3,
         inputFormatter: [null, utils.toHex, formatters.inputDefaultBlockNumberFormatter]
     });
 
     var getCode = new Method({
         name: 'getCode',
-        call: 'etrue_getCode',
+        call: 'etai_getCode',
         params: 2,
         inputFormatter: [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter]
     });
@@ -5369,14 +5369,14 @@ var methods = function () {
     
     var getRewardBlock = new Method({
         name: 'getRewardBlock',
-        call: 'etrue_getRewardBlock',
+        call: 'etai_getRewardBlock',
         params: 1,
         inputFormatter: [formatters.inputDefaultBlockNumberFormatter]
     });
 
     var getSnailRewardContent = new Method({
       name: 'getSnailRewardContent',
-      call: 'etrue_getSnailRewardContent',
+      call: 'etai_getSnailRewardContent',
       params: 1,
       inputFormatter: [formatters.inputDefaultBlockNumberFormatter]
     });
@@ -5408,7 +5408,7 @@ var methods = function () {
 
     var getCompilers = new Method({
         name: 'getCompilers',
-        call: 'etrue_getCompilers',
+        call: 'etai_getCompilers',
         params: 0
     });
 
@@ -5438,7 +5438,7 @@ var methods = function () {
 
     var getTransaction = new Method({
         name: 'getTransaction',
-        call: 'etrue_getTransactionByHash',
+        call: 'etai_getTransactionByHash',
         params: 1,
         outputFormatter: formatters.outputTransactionFormatter
     });
@@ -5461,14 +5461,14 @@ var methods = function () {
 
     var getTransactionReceipt = new Method({
         name: 'getTransactionReceipt',
-        call: 'etrue_getTransactionReceipt',
+        call: 'etai_getTransactionReceipt',
         params: 1,
         outputFormatter: formatters.outputTransactionReceiptFormatter
     });
 
     var getTransactionCount = new Method({
         name: 'getTransactionCount',
-        call: 'etrue_getTransactionCount',
+        call: 'etai_getTransactionCount',
         params: 2,
         inputFormatter: [null, formatters.inputDefaultBlockNumberFormatter],
         outputFormatter: utils.toDecimal
@@ -5476,49 +5476,49 @@ var methods = function () {
 
     var sendRawTransaction = new Method({
         name: 'sendRawTransaction',
-        call: 'etrue_sendRawTransaction',
+        call: 'etai_sendRawTransaction',
         params: 1,
         inputFormatter: [null]
     });
 
     var sendTrueRawTransaction = new Method({
         name: 'sendTrueRawTransaction',
-        call: 'etrue_sendTrueRawTransaction',
+        call: 'etai_sendTrueRawTransaction',
         params: 1,
         inputFormatter: [null]
     });
 
     var sendTransaction = new Method({
         name: 'sendTransaction',
-        call: 'etrue_sendTransaction',
+        call: 'etai_sendTransaction',
         params: 1,
         inputFormatter: [formatters.inputTransactionFormatter]
     });
 
     var signTransaction = new Method({
         name: 'signTransaction',
-        call: 'etrue_signTransaction',
+        call: 'etai_signTransaction',
         params: 1,
         inputFormatter: [formatters.inputTransactionFormatter]
     });
 
     var sign = new Method({
         name: 'sign',
-        call: 'etrue_sign',
+        call: 'etai_sign',
         params: 2,
         inputFormatter: [formatters.inputAddressFormatter, null]
     });
 
     var call = new Method({
         name: 'call',
-        call: 'etrue_call',
+        call: 'etai_call',
         params: 2,
         inputFormatter: [formatters.inputCallFormatter, formatters.inputDefaultBlockNumberFormatter]
     });
 
     var estimateGas = new Method({
         name: 'estimateGas',
-        call: 'etrue_estimateGas',
+        call: 'etai_estimateGas',
         params: 1,
         inputFormatter: [formatters.inputCallFormatter],
         outputFormatter: utils.toDecimal
@@ -5526,43 +5526,43 @@ var methods = function () {
 
     var compileSolidity = new Method({
         name: 'compile.solidity',
-        call: 'etrue_compileSolidity',
+        call: 'etai_compileSolidity',
         params: 1
     });
 
     var compileLLL = new Method({
         name: 'compile.lll',
-        call: 'etrue_compileLLL',
+        call: 'etai_compileLLL',
         params: 1
     });
 
     var compileSerpent = new Method({
         name: 'compile.serpent',
-        call: 'etrue_compileSerpent',
+        call: 'etai_compileSerpent',
         params: 1
     });
 
     var submitWork = new Method({
         name: 'submitWork',
-        call: 'etrue_submitWork',
+        call: 'etai_submitWork',
         params: 3
     });
 
     var getDataset = new Method({
         name: 'getDataset',
-        call: 'etrue_getDataset',
+        call: 'etai_getDataset',
         params: 0
     });
 
     var getDatasetBySeedhash = new Method({
         name: 'getDatasetBySeedhash',
-        call: 'etrue_getDatasetBySeedhash',
+        call: 'etai_getDatasetBySeedhash',
         params: 1
     });
 
     var getCommittee = new Method({
         name: 'getCommittee',
-        call: 'etrue_getCommittee',
+        call: 'etai_getCommittee',
         params: 1,
         inputFormatter: [formatters.inputNoPendingNumberFormatter]
         // outputFormatter: formatters.outputSnailFormatter
@@ -5570,20 +5570,20 @@ var methods = function () {
     
     var getCurrentState = new Method({
         name: 'getCurrentState',
-        call: 'etrue_getCurrentState',
+        call: 'etai_getCurrentState',
         params: 0
         // outputFormatter: formatters.outputSnailFormatter
     });
 
     var getWork = new Method({
         name: 'getWork',
-        call: 'etrue_getWork',
+        call: 'etai_getWork',
         params: 0
     });
 
     var submitHashrate = new Method({
         name: 'submitHashrate',
-        call: 'etrue_submitHashrate',
+        call: 'etai_submitHashrate',
         params: 0
     });
 
@@ -5631,96 +5631,96 @@ var properties = function () {
     return [
         new Property({
             name: 'coinbase',
-            getter: 'etrue_coinbase'
+            getter: 'etai_coinbase'
         }),
         new Property({
             name: 'pubkey',
-            getter: 'etrue_pubkey'
+            getter: 'etai_pubkey'
         }),
         new Property({
             name: 'committeeBase',
-            getter: 'etrue_committeeBase'
+            getter: 'etai_committeeBase'
         }),
         new Property({
             name: 'isCommitteeMember',
-            getter: 'etrue_isCommitteeMember'
+            getter: 'etai_isCommitteeMember'
         }),
         new Property({
             name: 'mining',
-            getter: 'etrue_mining'
+            getter: 'etai_mining'
         }),
         new Property({
             name: 'hashrate',
-            getter: 'etrue_hashrate',
+            getter: 'etai_hashrate',
             outputFormatter: utils.toDecimal
         }),
         new Property({
             name: 'syncing',
-            getter: 'etrue_syncing',
+            getter: 'etai_syncing',
             outputFormatter: formatters.outputSyncingFormatter
         }),
         new Property({
             name: 'gasPrice',
-            getter: 'etrue_gasPrice',
+            getter: 'etai_gasPrice',
             outputFormatter: formatters.outputBigNumberFormatter
         }),
         new Property({
             name: 'accounts',
-            getter: 'etrue_accounts'
+            getter: 'etai_accounts'
         }),
         new Property({
             name: 'blockNumber',
-            getter: 'etrue_blockNumber',
+            getter: 'etai_blockNumber',
             outputFormatter: utils.toDecimal
         }),
         new Property({
             name: 'snailBlockNumber',
-            getter: 'etrue_snailBlockNumber',
+            getter: 'etai_snailBlockNumber',
             outputFormatter: utils.toDecimal
         }),
         new Property({
             name: 'rewardSnailBlock',
-            getter: 'etrue_rewardSnailBlock'
+            getter: 'etai_rewardSnailBlock'
         }),
         new Property({
             name: 'fruitNumber',
-            getter: 'etrue_fruitNumber',
+            getter: 'etai_fruitNumber',
             outputFormatter: utils.toDecimal
         }),
         new Property({
             name: 'committeeNumber',
-            getter: 'etrue_committeeNumber',
+            getter: 'etai_committeeNumber',
             outputFormatter: utils.toDecimal
         }),
         new Property({
             name: 'protocolVersion',
-            getter: 'etrue_protocolVersion'
+            getter: 'etai_protocolVersion'
         })
     ];
 };
 
-Etrue.prototype.contract = function (abi) {
+Etai.prototype.contract = function (abi) {
     var factory = new Contract(this, abi);
     return factory;
 };
 
-Etrue.prototype.filter = function (options, callback, filterCreationErrorCallback) {
-    return new Filter(options, 'etrue', this._requestManager, watches.etrue(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
+Etai.prototype.filter = function (options, callback, filterCreationErrorCallback) {
+    return new Filter(options, 'etai', this._requestManager, watches.etai(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
 };
 
-Etrue.prototype.namereg = function () {
+Etai.prototype.namereg = function () {
     return this.contract(namereg.global.abi).at(namereg.global.address);
 };
 
-Etrue.prototype.icapNamereg = function () {
+Etai.prototype.icapNamereg = function () {
     return this.contract(namereg.icap.abi).at(namereg.icap.address);
 };
 
-Etrue.prototype.isSyncing = function (callback) {
+Etai.prototype.isSyncing = function (callback) {
     return new IsSyncing(this._requestManager, callback);
 };
 
-module.exports = Etrue;
+module.exports = Etai;
 
 },{"../../utils/config":18,"../../utils/utils":20,"../contract":25,"../filter":29,"../formatters":30,"../iban":33,"../method":36,"../namereg":44,"../property":45,"../syncing":48,"../transfer":49,"./watches":43}],39:[function(require,module,exports){
 /*
@@ -5739,7 +5739,7 @@ module.exports = Etrue;
     You should have received a copy of the GNU Lesser General Public License
     along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
-/** @file etrue.js
+/** @file etai.js
  * @authors:
  *   Marek Kotewicz <marek@ethdev.com>
  * @date 2015
@@ -5759,7 +5759,7 @@ var Net = function (web3) {
     });
 };
 
-/// @returns an array of objects describing web3.etrue api properties
+/// @returns an array of objects describing web3.etai api properties
 var properties = function () {
     return [
         new Property({
@@ -5794,7 +5794,7 @@ module.exports = Net;
     along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * @file etrue.js
+ * @file etai.js
  * @author Marek Kotewicz <marek@ethdev.com>
  * @author Fabian Vogelsteller <fabian@ethdev.com>
  * @date 2015
@@ -6211,8 +6211,8 @@ module.exports = Swarm;
 
 var Method = require('../method');
 
-/// @returns an array of objects describing web3.etrue.filter api methods
-var etrue = function () {
+/// @returns an array of objects describing web3.etai.filter api methods
+var etai = function () {
     var newFilterCall = function (args) {
         var type = args[0];
 
@@ -6220,13 +6220,13 @@ var etrue = function () {
             case 'latest':
                 args.shift();
                 this.params = 0;
-                return 'etrue_newBlockFilter';
+                return 'etai_newBlockFilter';
             case 'pending':
                 args.shift();
                 this.params = 0;
-                return 'etrue_newPendingTransactionFilter';
+                return 'etai_newPendingTransactionFilter';
             default:
-                return 'etrue_newFilter';
+                return 'etai_newFilter';
         }
     };
 
@@ -6238,19 +6238,19 @@ var etrue = function () {
 
     var uninstallFilter = new Method({
         name: 'uninstallFilter',
-        call: 'etrue_uninstallFilter',
+        call: 'etai_uninstallFilter',
         params: 1
     });
 
     var getLogs = new Method({
         name: 'getLogs',
-        call: 'etrue_getFilterLogs',
+        call: 'etai_getFilterLogs',
         params: 1
     });
 
     var poll = new Method({
         name: 'poll',
-        call: 'etrue_getFilterChanges',
+        call: 'etai_getFilterChanges',
         params: 1
     });
 
@@ -6290,7 +6290,7 @@ var shh = function () {
 };
 
 module.exports = {
-    etrue: etrue,
+    etai: etai,
     shh: shh
 };
 
@@ -6680,7 +6680,7 @@ RequestManager.prototype.reset = function (keepIsSyncing) {
  */
 RequestManager.prototype.poll = function () {
     /*jshint maxcomplexity: 6 */
-    this.timeout = setTimeout(this.poll.bind(this), c.ETRUE_POLLING_TIMEOUT);
+    this.timeout = setTimeout(this.poll.bind(this), c.ETAI_POLLING_TIMEOUT);
 
     if (Object.keys(this.polls).length === 0) {
         return;
@@ -6824,7 +6824,7 @@ var pollSyncing = function(self) {
     };
 
     self.requestManager.startPolling({
-        method: 'etrue_syncing',
+        method: 'etai_syncing',
         params: [],
     }, self.pollId, onMessage, self.stopWatching.bind(self));
 
@@ -6890,23 +6890,23 @@ var exchangeAbi = require('../contracts/SmartExchange.json');
  * @param {Value} value to be tranfered
  * @param {Function} callback, callback
  */
-var transfer = function (etrue, from, to, value, callback) {
+var transfer = function (etai, from, to, value, callback) {
     var iban = new Iban(to); 
     if (!iban.isValid()) {
         throw new Error('invalid iban address');
     }
 
     if (iban.isDirect()) {
-        return transferToAddress(etrue, from, iban.address(), value, callback);
+        return transferToAddress(etai, from, iban.address(), value, callback);
     }
     
     if (!callback) {
-        var address = etrue.icapNamereg().addr(iban.institution());
-        return deposit(etrue, from, address, value, iban.client());
+        var address = etai.icapNamereg().addr(iban.institution());
+        return deposit(etai, from, address, value, iban.client());
     }
 
-    etrue.icapNamereg().addr(iban.institution(), function (err, address) {
-        return deposit(etrue, from, address, value, iban.client(), callback);
+    etai.icapNamereg().addr(iban.institution(), function (err, address) {
+        return deposit(etai, from, address, value, iban.client(), callback);
     });
     
 };
@@ -6920,8 +6920,8 @@ var transfer = function (etrue, from, to, value, callback) {
  * @param {Value} value to be tranfered
  * @param {Function} callback, callback
  */
-var transferToAddress = function (etrue, from, to, value, callback) {
-    return etrue.sendTransaction({
+var transferToAddress = function (etai, from, to, value, callback) {
+    return etai.sendTransaction({
         address: to,
         from: from,
         value: value
@@ -6938,9 +6938,9 @@ var transferToAddress = function (etrue, from, to, value, callback) {
  * @param {String} client unique identifier
  * @param {Function} callback, callback
  */
-var deposit = function (etrue, from, to, value, client, callback) {
+var deposit = function (etai, from, to, value, client, callback) {
     var abi = exchangeAbi;
-    return etrue.contract(abi).at(to).deposit(client, {
+    return etai.contract(abi).at(to).deposit(client, {
         from: from,
         value: value
     }, callback);

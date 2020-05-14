@@ -23,16 +23,16 @@ import (
 )
 
 var (
-	headerInMeter      = metrics.NewRegisteredMeter("etrue/downloader/headers/in", nil)
-	headerReqTimer     = metrics.NewRegisteredTimer("etrue/downloader/headers/req", nil)
-	headerDropMeter    = metrics.NewRegisteredMeter("etrue/downloader/headers/drop", nil)
-	headerTimeoutMeter = metrics.NewRegisteredMeter("etrue/downloader/headers/timeout", nil)
+	headerInMeter      = metrics.NewRegisteredMeter("etai/downloader/headers/in", nil)
+	headerReqTimer     = metrics.NewRegisteredTimer("etai/downloader/headers/req", nil)
+	headerDropMeter    = metrics.NewRegisteredMeter("etai/downloader/headers/drop", nil)
+	headerTimeoutMeter = metrics.NewRegisteredMeter("etai/downloader/headers/timeout", nil)
 
-	bodyInMeter      = metrics.NewRegisteredMeter("etrue/downloader/bodies/in", nil)
-	bodyReqTimer     = metrics.NewRegisteredTimer("etrue/downloader/bodies/req", nil)
-	bodyDropMeter    = metrics.NewRegisteredMeter("etrue/downloader/bodies/drop", nil)
-	bodyTimeoutMeter = metrics.NewRegisteredMeter("etrue/downloader/bodies/timeout", nil)
+	bodyInMeter      = metrics.NewRegisteredMeter("etai/downloader/bodies/in", nil)
+	bodyReqTimer     = metrics.NewRegisteredTimer("etai/downloader/bodies/req", nil)
+	bodyDropMeter    = metrics.NewRegisteredMeter("etai/downloader/bodies/drop", nil)
+	bodyTimeoutMeter = metrics.NewRegisteredMeter("etai/downloader/bodies/timeout", nil)
 
-	stateInMeter   = metrics.NewRegisteredMeter("etrue/downloader/states/in", nil)
-	stateDropMeter = metrics.NewRegisteredMeter("etrue/downloader/states/drop", nil)
+	stateInMeter   = metrics.NewRegisteredMeter("etai/downloader/states/in", nil)
+	stateDropMeter = metrics.NewRegisteredMeter("etai/downloader/states/drop", nil)
 )

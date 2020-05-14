@@ -37,7 +37,7 @@ func standardCounterCollector(name string) func() int64 {
 // collectTxpoolData gathers data about the tx_pool and sends it to the clients.
 func (db *Dashboard) collectTxpoolData() {
 	defer db.wg.Done()
-	txpool := db.etrue.TxPool()
+	txpool := db.etai.TxPool()
 	pending, queued := txpool.Stats()
 	var (
 		// Metrics for the pending pool

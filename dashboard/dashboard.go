@@ -71,7 +71,7 @@ type Dashboard struct {
 	quit chan chan error // Channel used for graceful exit
 	wg   sync.WaitGroup  // Wait group used to close the data collector threads
 
-	etrue *tai.Taichain // Full Taichain service if monitoring a full node
+	etai *tai.Taichain // Full Taichain service if monitoring a full node
 }
 
 // client represents active websocket connection with a remote browser.
@@ -91,7 +91,7 @@ func New(config *Config, commit string, logdir string, ethServ *tai.Taichain) *D
 	return &Dashboard{
 		conns:  make(map[uint32]*client),
 		config: config,
-		etrue:  ethServ,
+		etai:   ethServ,
 		quit:   make(chan chan error),
 		history: &Message{
 			General: &GeneralMessage{

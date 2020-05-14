@@ -30,7 +30,7 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/vm"
 	"github.com/taiyuechain/taipublicchain/params"
 	"github.com/taiyuechain/taipublicchain/taidb"
-	//"github.com/taiyuechain/taipublicchain/etrue"
+	//"github.com/taiyuechain/taipublicchain/etai"
 )
 
 // BlockGen creates blocks for testing.
@@ -297,8 +297,8 @@ func MakeChain(fastBlockNumbers int, snailBlockNumbers int, genesis *core.Genesi
 		testdb = taidb.NewMemDatabase()
 	)
 	cache := &core.CacheConfig{
-		//TrieNodeLimit: etrue.DefaultConfig.TrieCache,
-		//TrieTimeLimit: etrue.DefaultConfig.TrieTimeout,
+		//TrieNodeLimit: etai.DefaultConfig.TrieCache,
+		//TrieTimeLimit: etai.DefaultConfig.TrieTimeout,
 	}
 
 	if fastBlockNumbers < snailBlockNumbers*params.MinimumFruits {

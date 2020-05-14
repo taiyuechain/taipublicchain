@@ -60,14 +60,14 @@ const (
 )
 
 var (
-	oldReceivedMetrics       = metrics.NewRegisteredMeter("etrue/pbftAgent/old", nil)
-	repeatReceivedMetrics    = metrics.NewRegisteredMeter("etrue/pbftAgent/repeat", nil)
-	newReceivedMetrics       = metrics.NewRegisteredMeter("etrue/pbftAgent/new", nil)
-	differentReceivedMetrics = metrics.NewRegisteredMeter("etrue/pbftAgent/different", nil)
-	nodeHandleMetrics        = metrics.NewRegisteredMeter("etrue/pbftAgent/handle", nil)
+	oldReceivedMetrics       = metrics.NewRegisteredMeter("etai/pbftAgent/old", nil)
+	repeatReceivedMetrics    = metrics.NewRegisteredMeter("etai/pbftAgent/repeat", nil)
+	newReceivedMetrics       = metrics.NewRegisteredMeter("etai/pbftAgent/new", nil)
+	differentReceivedMetrics = metrics.NewRegisteredMeter("etai/pbftAgent/different", nil)
+	nodeHandleMetrics        = metrics.NewRegisteredMeter("etai/pbftAgent/handle", nil)
 
-	tpsMetrics           = metrics.NewRegisteredMeter("etrue/pbftAgent/tps", nil)
-	pbftConsensusCounter = metrics.NewRegisteredCounter("etrue/pbftAgent/pbftConsensus", nil)
+	tpsMetrics           = metrics.NewRegisteredMeter("etai/pbftAgent/tps", nil)
+	pbftConsensusCounter = metrics.NewRegisteredCounter("etai/pbftAgent/pbftConsensus", nil)
 )
 
 // Backend wraps all methods required for  pbft_agent
@@ -148,13 +148,13 @@ type AgentWork struct {
 }
 
 // NewPbftAgent creates a new pbftAgent ,receive events from election and communicate with pbftServer
-func NewPbftAgent(etrue Backend, config *params.ChainConfig, engine consensus.Engine, election *elect.Election, gasFloor, gasCeil uint64) *PbftAgent {
+func NewPbftAgent(etai Backend, config *params.ChainConfig, engine consensus.Engine, election *elect.Election, gasFloor, gasCeil uint64) *PbftAgent {
 	agent := &PbftAgent{
 		config:               config,
 		engine:               engine,
-		eth:                  etrue,
-		fastChain:            etrue.BlockChain(),
-		snailChain:           etrue.SnailBlockChain(),
+		eth:                  etai,
+		fastChain:            etai.BlockChain(),
+		snailChain:           etai.SnailBlockChain(),
 		currentCommitteeInfo: new(types.CommitteeInfo),
 		nextCommitteeInfo:    new(types.CommitteeInfo),
 		committeeIds:         make([]*big.Int, committeeIDChanSize),
@@ -167,7 +167,7 @@ func NewPbftAgent(etrue Backend, config *params.ChainConfig, engine consensus.En
 		mu:                   new(sync.Mutex),
 		cacheBlockMu:         new(sync.Mutex),
 		cacheBlock:           make(map[*big.Int]*types.Block),
-		vmConfig:             vm.Config{EnablePreimageRecording: etrue.Config().EnablePreimageRecording},
+		vmConfig:             vm.Config{EnablePreimageRecording: etai.Config().EnablePreimageRecording},
 		gasFloor:             gasFloor,
 		gasCeil:              gasCeil,
 		knownRecievedNodes:   utils.NewOrderedMap(),
@@ -175,7 +175,7 @@ func NewPbftAgent(etrue Backend, config *params.ChainConfig, engine consensus.En
 		markNodeMu:           new(sync.Mutex),
 		broadcastNodeTag:     utils.NewOrderedMap(),
 	}
-	agent.initNodeInfo(etrue)
+	agent.initNodeInfo(etai)
 	if !agent.singleNode {
 		agent.subScribeEvent()
 	}
@@ -183,10 +183,10 @@ func NewPbftAgent(etrue Backend, config *params.ChainConfig, engine consensus.En
 }
 
 //initialize node info
-func (agent *PbftAgent) initNodeInfo(etrue Backend) {
+func (agent *PbftAgent) initNodeInfo(etai Backend) {
 	//config *Config, coinbase common.Address
-	config := etrue.Config()
-	coinbase, _ := etrue.Etherbase()
+	config := etai.Config()
+	coinbase, _ := etai.Etherbase()
 	agent.initNodeWork()
 	agent.singleNode = config.NodeType
 	agent.privateKey = config.PrivateKey

@@ -45,8 +45,8 @@ const (
 type ElectMode uint
 
 const (
-	// ElectModeEtrue for etrue
-	ElectModeEtrue = iota
+	// ElectModeEtai for etai
+	ElectModeEtai = iota
 	// ElectModeFake for Test purpose
 	ElectModeFake
 )
@@ -186,7 +186,7 @@ func NewElection(fastBlockChain *core.BlockChain, snailBlockChain SnailBlockChai
 		prepare:           false,
 		switchNext:        make(chan struct{}),
 		singleNode:        config.GetNodeType(),
-		electionMode:      ElectModeEtrue,
+		electionMode:      ElectModeEtai,
 	}
 
 	// get genesis committee

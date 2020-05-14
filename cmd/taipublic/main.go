@@ -109,7 +109,7 @@ var (
 		utils.NetworkIdFlag,
 		utils.RPCCORSDomainFlag,
 		utils.RPCVirtualHostsFlag,
-		utils.EtrueStatsURLFlag,
+		utils.EtaiStatsURLFlag,
 		utils.MetricsEnabledFlag,
 		utils.FakePoWFlag,
 		utils.NoCompactionFlag,

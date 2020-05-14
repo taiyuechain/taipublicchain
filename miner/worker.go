@@ -121,7 +121,7 @@ type worker struct {
 	agents map[Agent]struct{}
 	recv   chan *Result
 
-	etrue     Backend
+	etai      Backend
 	chain     *chain.SnailBlockChain
 	fastchain *core.BlockChain
 	proc      core.SnailValidator
@@ -156,36 +156,36 @@ type worker struct {
 	fruitPoolMap map[uint64]*types.SnailBlock
 }
 
-func newWorker(config *params.ChainConfig, engine consensus.Engine, coinbase common.Address, etrue Backend, mux *event.TypeMux) *worker {
+func newWorker(config *params.ChainConfig, engine consensus.Engine, coinbase common.Address, etai Backend, mux *event.TypeMux) *worker {
 	worker := &worker{
 		config:            config,
 		engine:            engine,
-		etrue:             etrue,
+		etai:              etai,
 		mux:               mux,
 		fruitCh:           make(chan types.NewFruitsEvent, fruitChanSize),
 		fastchainEventCh:  make(chan types.FastChainEvent, fastchainHeadChanSize),
 		chainHeadCh:       make(chan types.SnailChainHeadEvent, chainHeadChanSize),
 		chainSideCh:       make(chan types.SnailChainSideEvent, chainSideChanSize),
 		minedfruitCh:      make(chan types.NewMinedFruitEvent, fruitChanSize),
-		chainDb:           etrue.ChainDb(),
+		chainDb:           etai.ChainDb(),
 		recv:              make(chan *Result, resultQueueSize),
-		chain:             etrue.SnailBlockChain(),
-		fastchain:         etrue.BlockChain(),
-		proc:              etrue.SnailBlockChain().Validator(),
+		chain:             etai.SnailBlockChain(),
+		fastchain:         etai.BlockChain(),
+		proc:              etai.SnailBlockChain().Validator(),
 		possibleUncles:    make(map[common.Hash]*types.SnailBlock),
 		coinbase:          coinbase,
 		agents:            make(map[Agent]struct{}),
-		unconfirmed:       newUnconfirmedBlocks(etrue.SnailBlockChain(), miningLogAtDepth),
+		unconfirmed:       newUnconfirmedBlocks(etai.SnailBlockChain(), miningLogAtDepth),
 		fastBlockNumber:   big.NewInt(0),
 		atCommintNewWoker: false,
 		fruitPoolMap:      make(map[uint64]*types.SnailBlock),
 	}
 	// Subscribe events for blockchain
-	worker.chainHeadSub = etrue.SnailBlockChain().SubscribeChainHeadEvent(worker.chainHeadCh)
-	worker.chainSideSub = etrue.SnailBlockChain().SubscribeChainSideEvent(worker.chainSideCh)
-	worker.minedfruitSub = etrue.SnailBlockChain().SubscribeNewFruitEvent(worker.minedfruitCh)
+	worker.chainHeadSub = etai.SnailBlockChain().SubscribeChainHeadEvent(worker.chainHeadCh)
+	worker.chainSideSub = etai.SnailBlockChain().SubscribeChainSideEvent(worker.chainSideCh)
+	worker.minedfruitSub = etai.SnailBlockChain().SubscribeNewFruitEvent(worker.minedfruitCh)
 
-	worker.fruitSub = etrue.SnailPool().SubscribeNewFruitEvent(worker.fruitCh)
+	worker.fruitSub = etai.SnailPool().SubscribeNewFruitEvent(worker.fruitCh)
 	worker.fastchainEventSub = worker.fastchain.SubscribeChainEvent(worker.fastchainEventCh)
 
 	go worker.update()
@@ -424,7 +424,7 @@ func (w *worker) wait() {
 					log.Info("🍒  mined fruit", "number", block.FastNumber(), "diff", block.FruitDifficulty(), "hash", block.Hash(), "signs", len(block.Signs()))
 					var newFruits []*types.SnailBlock
 					newFruits = append(newFruits, block)
-					w.etrue.SnailPool().AddRemoteFruits(newFruits, true)
+					w.etai.SnailPool().AddRemoteFruits(newFruits, true)
 					// store the mined fruit to woker.minedfruit
 					w.minedFruit = types.CopyFruit(block)
 				} else {
@@ -433,7 +433,7 @@ func (w *worker) wait() {
 						log.Info("🍒  mined fruit", "number", block.FastNumber(), "diff", block.FruitDifficulty(), "hash", block.Hash(), "signs", len(block.Signs()))
 						var newFruits []*types.SnailBlock
 						newFruits = append(newFruits, block)
-						w.etrue.SnailPool().AddRemoteFruits(newFruits, true)
+						w.etai.SnailPool().AddRemoteFruits(newFruits, true)
 						// store the mined fruit to woker.minedfruit
 						w.minedFruit = types.CopyFruit(block)
 					}
@@ -574,7 +574,7 @@ func (w *worker) commitNewWork() {
 	// Create the current work task and check any fork transitions needed
 	work := w.current
 
-	fruits := w.etrue.SnailPool().PendingFruits()
+	fruits := w.etai.SnailPool().PendingFruits()
 
 	pendingFruits := w.CopyPendingFruit(fruits, w.chain)
 	//for create a new fruits for worker
@@ -770,7 +770,7 @@ func (w *worker) CommitFruits(fruits []*types.SnailBlock, bc *chain.SnailBlockCh
 				} else {
 					//need del the fruit
 					log.Debug("commitFruits  remove unVerifyFreshness fruit", "fb num", fruit.FastNumber())
-					w.etrue.SnailPool().RemovePendingFruitByFastHash(fruit.FastHash())
+					w.etai.SnailPool().RemovePendingFruitByFastHash(fruit.FastHash())
 
 					//post a event to start a new commitwork
 					var (

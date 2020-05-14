@@ -676,7 +676,7 @@ func (p *peer) Send(msgcode uint64, data interface{}) error {
 	return err
 }
 
-// Handshake executes the etrue protocol handshake, negotiating version number,
+// Handshake executes the etai protocol handshake, negotiating version number,
 // network IDs, difficulties, head and genesis blocks.
 func (p *peer) Handshake(network uint64, td *big.Int, head common.Hash, genesis common.Hash, fastHead common.Hash, fastHeight *big.Int) error {
 	// Send out own handshake in a new thread
@@ -740,7 +740,7 @@ func (p *peer) readStatus(network uint64, status *statusData, genesis common.Has
 	return nil
 }
 
-// Handshake executes the etrue protocol handshake, negotiating version number,
+// Handshake executes the etai protocol handshake, negotiating version number,
 // network IDs, difficulties, head and genesis blocks.
 func (p *peer) SnapHandshake(network uint64, td *big.Int, head common.Hash, genesis common.Hash, fastHead common.Hash, fastHeight *big.Int, gcHeight *big.Int, commitHeight *big.Int) error {
 	// Send out own handshake in a new thread
@@ -809,7 +809,7 @@ func (p *peer) readSnapStatus(network uint64, status *statusSnapData, genesis co
 // String implements fmt.Stringer.
 func (p *peer) String() string {
 	return fmt.Sprintf("Peer %s [%s]", p.id,
-		fmt.Sprintf("etrue/%2d", p.version),
+		fmt.Sprintf("etai/%2d", p.version),
 	)
 }
 

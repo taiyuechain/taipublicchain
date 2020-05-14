@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-// Package etrue implements the Taichain protocol.
+// Package etai implements the Taichain protocol.
 package tai
 
 import (
@@ -117,10 +117,10 @@ func (s *Taichain) AddLesServer(ls LesServer) {
 // initialisation of the common Taichain object)
 func New(ctx *node.ServiceContext, config *Config) (*Taichain, error) {
 	if config.SyncMode == downloader.LightSync {
-		return nil, errors.New("can't run etrue.Taichain in light sync mode, use les.LightTruechain")
+		return nil, errors.New("can't run etai.Taichain in light sync mode, use les.LightTruechain")
 	}
 	//if config.SyncMode == downloader.SnapShotSync {
-	//	return nil, errors.New("can't run etrue.Taichain in SnapShotSync sync mode, use les.LightTruechain")
+	//	return nil, errors.New("can't run etai.Taichain in SnapShotSync sync mode, use les.LightTruechain")
 	//}
 
 	if !config.SyncMode.IsValid() {
@@ -144,7 +144,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Taichain, error) {
 		config.MinerGasCeil = config.Genesis.GasLimit * 11 / 10
 	}*/
 
-	etrue := &Taichain{
+	etai := &Taichain{
 		config:         config,
 		chainDb:        chainDb,
 		chainConfig:    chainConfig,
@@ -173,12 +173,12 @@ func New(ctx *node.ServiceContext, config *Config) (*Taichain, error) {
 		cacheConfig = &core.CacheConfig{Deleted: config.DeletedState, Disabled: config.NoPruning, TrieNodeLimit: config.TrieCache, TrieTimeLimit: config.TrieTimeout}
 	)
 
-	etrue.blockchain, err = core.NewBlockChain(chainDb, cacheConfig, etrue.chainConfig, etrue.engine, vmConfig)
+	etai.blockchain, err = core.NewBlockChain(chainDb, cacheConfig, etai.chainConfig, etai.engine, vmConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	etrue.snailblockchain, err = chain.NewSnailBlockChain(chainDb, etrue.chainConfig, etrue.engine, etrue.blockchain)
+	etai.snailblockchain, err = chain.NewSnailBlockChain(chainDb, etai.chainConfig, etai.engine, etai.blockchain)
 	if err != nil {
 		return nil, err
 	}
@@ -186,21 +186,21 @@ func New(ctx *node.ServiceContext, config *Config) (*Taichain, error) {
 	// Rewind the chain in case of an incompatible config upgrade.
 	if compat, ok := genesisErr.(*params.ConfigCompatError); ok {
 		log.Warn("Rewinding chain to upgrade configuration", "err", compat)
-		etrue.blockchain.SetHead(compat.RewindTo)
+		etai.blockchain.SetHead(compat.RewindTo)
 		rawdb.WriteChainConfig(chainDb, genesisHash, chainConfig)
 	}
 
 	//  rewind snail if case of incompatible config
 	if compat, ok := genesisErr.(*params.ConfigCompatError); ok {
 		log.Warn("Rewinding snail chain to upgrade configuration", "err", compat)
-		etrue.snailblockchain.SetHead(compat.RewindTo)
+		etai.snailblockchain.SetHead(compat.RewindTo)
 		rawdb.WriteChainConfig(chainDb, genesisHash, chainConfig)
 	}
 
-	etrue.bloomIndexer.Start(etrue.blockchain)
+	etai.bloomIndexer.Start(etai.blockchain)
 
-	//sv := chain.NewBlockValidator(etrue.chainConfig, etrue.blockchain, etrue.snailblockchain, etrue.engine)
-	//etrue.snailblockchain.SetValidator(sv)
+	//sv := chain.NewBlockValidator(etai.chainConfig, etai.blockchain, etai.snailblockchain, etai.engine)
+	//etai.snailblockchain.SetValidator(sv)
 
 	if config.TxPool.Journal != "" {
 		config.TxPool.Journal = ctx.ResolvePath(config.TxPool.Journal)
@@ -210,44 +210,44 @@ func New(ctx *node.ServiceContext, config *Config) (*Taichain, error) {
 		config.SnailPool.Journal = ctx.ResolvePath(config.SnailPool.Journal)
 	}
 
-	etrue.txPool = core.NewTxPool(config.TxPool, etrue.chainConfig, etrue.blockchain)
+	etai.txPool = core.NewTxPool(config.TxPool, etai.chainConfig, etai.blockchain)
 
-	//etrue.snailPool = chain.NewSnailPool(config.SnailPool, etrue.blockchain, etrue.snailblockchain, etrue.engine, sv)
-	etrue.snailPool = chain.NewSnailPool(config.SnailPool, etrue.blockchain, etrue.snailblockchain, etrue.engine)
+	//etai.snailPool = chain.NewSnailPool(config.SnailPool, etai.blockchain, etai.snailblockchain, etai.engine, sv)
+	etai.snailPool = chain.NewSnailPool(config.SnailPool, etai.blockchain, etai.snailblockchain, etai.engine)
 
-	etrue.election = elect.NewElection(etrue.blockchain, etrue.snailblockchain, etrue.config)
+	etai.election = elect.NewElection(etai.blockchain, etai.snailblockchain, etai.config)
 
-	//etrue.snailblockchain.Validator().SetElection(etrue.election, etrue.blockchain)
+	//etai.snailblockchain.Validator().SetElection(etai.election, etai.blockchain)
 
-	etrue.engine.SetElection(etrue.election)
-	etrue.engine.SetSnailChainReader(etrue.snailblockchain)
-	etrue.election.SetEngine(etrue.engine)
+	etai.engine.SetElection(etai.election)
+	etai.engine.SetSnailChainReader(etai.snailblockchain)
+	etai.election.SetEngine(etai.engine)
 
-	//coinbase, _ := etrue.Etherbase()
-	etrue.agent = NewPbftAgent(etrue, etrue.chainConfig, etrue.engine, etrue.election, config.MinerGasFloor, config.MinerGasCeil)
-	if etrue.protocolManager, err = NewProtocolManager(
-		etrue.chainConfig, config.SyncMode, config.NetworkId,
-		etrue.eventMux, etrue.txPool, etrue.snailPool, etrue.engine,
-		etrue.blockchain, etrue.snailblockchain,
-		chainDb, etrue.agent); err != nil {
+	//coinbase, _ := etai.Etherbase()
+	etai.agent = NewPbftAgent(etai, etai.chainConfig, etai.engine, etai.election, config.MinerGasFloor, config.MinerGasCeil)
+	if etai.protocolManager, err = NewProtocolManager(
+		etai.chainConfig, config.SyncMode, config.NetworkId,
+		etai.eventMux, etai.txPool, etai.snailPool, etai.engine,
+		etai.blockchain, etai.snailblockchain,
+		chainDb, etai.agent); err != nil {
 		return nil, err
 	}
 
-	etrue.miner = miner.New(etrue, etrue.chainConfig, etrue.EventMux(), etrue.engine, etrue.election, etrue.Config().MineFruit, etrue.Config().NodeType, etrue.Config().RemoteMine, etrue.Config().Mine)
-	etrue.miner.SetExtra(makeExtraData(config.ExtraData))
+	etai.miner = miner.New(etai, etai.chainConfig, etai.EventMux(), etai.engine, etai.election, etai.Config().MineFruit, etai.Config().NodeType, etai.Config().RemoteMine, etai.Config().Mine)
+	etai.miner.SetExtra(makeExtraData(config.ExtraData))
 
-	committeeKey, err := crypto.ToECDSA(etrue.config.CommitteeKey)
+	committeeKey, err := crypto.ToECDSA(etai.config.CommitteeKey)
 	if err == nil {
-		etrue.miner.SetElection(etrue.config.EnableElection, crypto.FromECDSAPub(&committeeKey.PublicKey))
+		etai.miner.SetElection(etai.config.EnableElection, crypto.FromECDSAPub(&committeeKey.PublicKey))
 	}
 
-	etrue.APIBackend = &TrueAPIBackend{etrue, nil}
+	etai.APIBackend = &TrueAPIBackend{etai, nil}
 	gpoParams := config.GPO
 	if gpoParams.Default == nil {
 		gpoParams.Default = config.GasPrice
 	}
-	etrue.APIBackend.gpo = gasprice.NewOracle(etrue.APIBackend, gpoParams)
-	return etrue, nil
+	etai.APIBackend.gpo = gasprice.NewOracle(etai.APIBackend, gpoParams)
+	return etai, nil
 }
 
 func makeExtraData(extra []byte) []byte {
@@ -274,7 +274,7 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (taidb.Data
 		return nil, err
 	}
 	if db, ok := db.(*taidb.LDBDatabase); ok {
-		db.Meter("etrue/db/chaindata/")
+		db.Meter("etai/db/chaindata/")
 	}
 	return db, nil
 }
@@ -315,7 +315,7 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *ethash.Config, chai
 	}
 }
 
-// APIs return the collection of RPC services the etrue package offers.
+// APIs return the collection of RPC services the etai package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (s *Taichain) APIs() []rpc.API {
 	apis := trueapi.GetAPIs(s.APIBackend)
@@ -323,8 +323,8 @@ func (s *Taichain) APIs() []rpc.API {
 	// Append any APIs exposed explicitly by the consensus engine
 	apis = append(apis, s.engine.APIs(s.BlockChain())...)
 
-	// Append etrue	APIs and  Eth APIs
-	namespaces := []string{"etrue", "eth"}
+	// Append etai	APIs and  Eth APIs
+	namespaces := []string{"etai", "eth"}
 	for _, name := range namespaces {
 		apis = append(apis, []rpc.API{
 			{

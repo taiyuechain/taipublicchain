@@ -39,16 +39,16 @@ import (
 )
 
 type LesApiBackend struct {
-	etrue *LightEtrue
-	gpo   *gasprice.Oracle
+	etai *LightEtai
+	gpo  *gasprice.Oracle
 }
 
 func (b *LesApiBackend) ChainConfig() *params.ChainConfig {
-	return b.etrue.chainConfig
+	return b.etai.chainConfig
 }
 
 func (b *LesApiBackend) CurrentBlock() *types.Block {
-	return types.NewBlockWithHeader(b.etrue.BlockChain().CurrentHeader())
+	return types.NewBlockWithHeader(b.etai.BlockChain().CurrentHeader())
 }
 
 func (b *LesApiBackend) CurrentSnailBlock() *types.SnailBlock {
@@ -56,8 +56,8 @@ func (b *LesApiBackend) CurrentSnailBlock() *types.SnailBlock {
 }
 
 func (b *LesApiBackend) SetHead(number uint64) {
-	b.etrue.protocolManager.downloader.Cancel()
-	b.etrue.blockchain.SetHead(number)
+	b.etai.protocolManager.downloader.Cancel()
+	b.etai.blockchain.SetHead(number)
 }
 
 func (b *LesApiBackend) SetSnailHead(number uint64) {
@@ -65,13 +65,13 @@ func (b *LesApiBackend) SetSnailHead(number uint64) {
 
 func (b *LesApiBackend) HeaderByNumber(ctx context.Context, blockNr rpc.BlockNumber) (*types.Header, error) {
 	if blockNr == rpc.LatestBlockNumber || blockNr == rpc.PendingBlockNumber {
-		return b.etrue.blockchain.CurrentHeader(), nil
+		return b.etai.blockchain.CurrentHeader(), nil
 	}
 
-	return b.etrue.blockchain.GetHeaderByNumberOdr(ctx, uint64(blockNr))
+	return b.etai.blockchain.GetHeaderByNumberOdr(ctx, uint64(blockNr))
 }
 func (b *LesApiBackend) HeaderByHash(ctx context.Context, hash common.Hash) (*types.Header, error) {
-	return b.etrue.blockchain.GetHeaderByHash(hash), nil
+	return b.etai.blockchain.GetHeaderByHash(hash), nil
 }
 
 // TODO: fixed lightchain func.
@@ -97,11 +97,11 @@ func (b *LesApiBackend) StateAndHeaderByNumber(ctx context.Context, blockNr rpc.
 	if header == nil || err != nil {
 		return nil, nil, err
 	}
-	return light.NewState(ctx, header, b.etrue.odr), header, nil
+	return light.NewState(ctx, header, b.etai.odr), header, nil
 }
 
 func (b *LesApiBackend) GetBlock(ctx context.Context, blockHash common.Hash) (*types.Block, error) {
-	return b.etrue.blockchain.GetBlockByHash(ctx, blockHash)
+	return b.etai.blockchain.GetBlockByHash(ctx, blockHash)
 }
 
 // TODO: fixed lightchain func.
@@ -115,87 +115,87 @@ func (b *LesApiBackend) GetSnailBlock(ctx context.Context, blockHash common.Hash
 }
 
 func (b *LesApiBackend) GetReceipts(ctx context.Context, hash common.Hash) (types.Receipts, error) {
-	if number := rawdb.ReadHeaderNumber(b.etrue.chainDb, hash); number != nil {
-		return light.GetBlockReceipts(ctx, b.etrue.odr, hash, *number)
+	if number := rawdb.ReadHeaderNumber(b.etai.chainDb, hash); number != nil {
+		return light.GetBlockReceipts(ctx, b.etai.odr, hash, *number)
 	}
 	return nil, nil
 }
 
 func (b *LesApiBackend) GetLogs(ctx context.Context, hash common.Hash) ([][]*types.Log, error) {
-	if number := rawdb.ReadHeaderNumber(b.etrue.chainDb, hash); number != nil {
-		return light.GetBlockLogs(ctx, b.etrue.odr, hash, *number)
+	if number := rawdb.ReadHeaderNumber(b.etai.chainDb, hash); number != nil {
+		return light.GetBlockLogs(ctx, b.etai.odr, hash, *number)
 	}
 	return nil, nil
 }
 
 func (b *LesApiBackend) GetTd(hash common.Hash) *big.Int {
-	return b.etrue.blockchain.GetTdByHash(hash)
+	return b.etai.blockchain.GetTdByHash(hash)
 }
 
 func (b *LesApiBackend) GetEVM(ctx context.Context, msg core.Message, state *state.StateDB, header *types.Header, vmCfg vm.Config) (*vm.EVM, func() error, error) {
 	state.SetBalance(msg.From(), math.MaxBig256)
-	context := core.NewEVMContext(msg, header, b.etrue.blockchain, nil, nil)
-	return vm.NewEVM(context, state, b.etrue.chainConfig, vmCfg), state.Error, nil
+	context := core.NewEVMContext(msg, header, b.etai.blockchain, nil, nil)
+	return vm.NewEVM(context, state, b.etai.chainConfig, vmCfg), state.Error, nil
 }
 
 func (b *LesApiBackend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
-	return b.etrue.txPool.Add(ctx, signedTx)
+	return b.etai.txPool.Add(ctx, signedTx)
 }
 
 func (b *LesApiBackend) RemoveTx(txHash common.Hash) {
-	b.etrue.txPool.RemoveTx(txHash)
+	b.etai.txPool.RemoveTx(txHash)
 }
 
 func (b *LesApiBackend) GetPoolTransactions() (types.Transactions, error) {
-	return b.etrue.txPool.GetTransactions()
+	return b.etai.txPool.GetTransactions()
 }
 
 func (b *LesApiBackend) GetPoolTransaction(txHash common.Hash) *types.Transaction {
-	return b.etrue.txPool.GetTransaction(txHash)
+	return b.etai.txPool.GetTransaction(txHash)
 }
 
 func (b *LesApiBackend) GetPoolNonce(ctx context.Context, addr common.Address) (uint64, error) {
-	return b.etrue.txPool.GetNonce(ctx, addr)
+	return b.etai.txPool.GetNonce(ctx, addr)
 }
 
 func (b *LesApiBackend) Stats() (pending int, queued int) {
-	return b.etrue.txPool.Stats(), 0
+	return b.etai.txPool.Stats(), 0
 }
 
 func (b *LesApiBackend) TxPoolContent() (map[common.Address]types.Transactions, map[common.Address]types.Transactions) {
-	return b.etrue.txPool.Content()
+	return b.etai.txPool.Content()
 }
 
 func (b *LesApiBackend) SubscribeNewTxsEvent(ch chan<- types.NewTxsEvent) event.Subscription {
-	return b.etrue.txPool.SubscribeNewTxsEvent(ch)
+	return b.etai.txPool.SubscribeNewTxsEvent(ch)
 }
 
 func (b *LesApiBackend) SubscribeChainEvent(ch chan<- types.FastChainEvent) event.Subscription {
-	return b.etrue.blockchain.SubscribeChainEvent(ch)
+	return b.etai.blockchain.SubscribeChainEvent(ch)
 }
 
 func (b *LesApiBackend) SubscribeChainHeadEvent(ch chan<- types.FastChainHeadEvent) event.Subscription {
-	return b.etrue.blockchain.SubscribeChainHeadEvent(ch)
+	return b.etai.blockchain.SubscribeChainHeadEvent(ch)
 }
 
 func (b *LesApiBackend) SubscribeChainSideEvent(ch chan<- types.FastChainSideEvent) event.Subscription {
-	return b.etrue.blockchain.SubscribeChainSideEvent(ch)
+	return b.etai.blockchain.SubscribeChainSideEvent(ch)
 }
 
 func (b *LesApiBackend) SubscribeLogsEvent(ch chan<- []*types.Log) event.Subscription {
-	return b.etrue.blockchain.SubscribeLogsEvent(ch)
+	return b.etai.blockchain.SubscribeLogsEvent(ch)
 }
 
 func (b *LesApiBackend) SubscribeRemovedLogsEvent(ch chan<- types.RemovedLogsEvent) event.Subscription {
-	return b.etrue.blockchain.SubscribeRemovedLogsEvent(ch)
+	return b.etai.blockchain.SubscribeRemovedLogsEvent(ch)
 }
 
 func (b *LesApiBackend) GetReward(number int64) *types.BlockReward {
 	//if number < 0 {
-	//	return b.etrue.blockchain.CurrentReward()
+	//	return b.etai.blockchain.CurrentReward()
 	//}
 
-	//return b.etrue.blockchain.GetFastHeightBySnailHeight(uint64(number))
+	//return b.etai.blockchain.GetFastHeightBySnailHeight(uint64(number))
 	return nil
 }
 
@@ -220,11 +220,11 @@ func (b *LesApiBackend) SnailPoolStats() (pending int, unVerified int) {
 }
 
 func (b *LesApiBackend) Downloader() *downloader.Downloader {
-	return b.etrue.Downloader()
+	return b.etai.Downloader()
 }
 
 func (b *LesApiBackend) ProtocolVersion() int {
-	return b.etrue.LesVersion() + 10000
+	return b.etai.LesVersion() + 10000
 }
 
 func (b *LesApiBackend) SuggestPrice(ctx context.Context) (*big.Int, error) {
@@ -232,27 +232,27 @@ func (b *LesApiBackend) SuggestPrice(ctx context.Context) (*big.Int, error) {
 }
 
 func (b *LesApiBackend) ChainDb() taidb.Database {
-	return b.etrue.chainDb
+	return b.etai.chainDb
 }
 
 func (b *LesApiBackend) EventMux() *event.TypeMux {
-	return b.etrue.eventMux
+	return b.etai.eventMux
 }
 
 func (b *LesApiBackend) AccountManager() *accounts.Manager {
-	return b.etrue.accountManager
+	return b.etai.accountManager
 }
 
 func (b *LesApiBackend) BloomStatus() (uint64, uint64) {
-	if b.etrue.bloomIndexer == nil {
+	if b.etai.bloomIndexer == nil {
 		return 0, 0
 	}
-	sections, _, _ := b.etrue.bloomIndexer.Sections()
+	sections, _, _ := b.etai.bloomIndexer.Sections()
 	return light.BloomTrieFrequency, sections
 }
 
 func (b *LesApiBackend) ServiceFilter(ctx context.Context, session *bloombits.MatcherSession) {
 	for i := 0; i < bloomFilterThreads; i++ {
-		go session.Multiplex(bloomRetrievalBatch, bloomRetrievalWait, b.etrue.bloomRequests)
+		go session.Multiplex(bloomRetrievalBatch, bloomRetrievalWait, b.etai.bloomRequests)
 	}
 }

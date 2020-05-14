@@ -52,7 +52,7 @@ func testStatusMsgErrors(t *testing.T, protocol int) {
 		committHeight = pm.blockchain.CurrentCommitHeight()
 	)
 	defer pm.Stop()
-	if protocol == etrue63 {
+	if protocol == etai63 {
 		tests := []struct {
 			code      uint64
 			data      interface{}

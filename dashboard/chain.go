@@ -41,8 +41,8 @@ type snailChainInfo struct {
 // collectTxpoolData gathers data about the tx_pool and sends it to the clients.
 func (db *Dashboard) collectChainData() {
 	defer db.wg.Done()
-	fastchain := db.etrue.BlockChain()
-	snailchain := db.etrue.SnailBlockChain()
+	fastchain := db.etai.BlockChain()
+	snailchain := db.etai.SnailBlockChain()
 
 	for {
 		select {

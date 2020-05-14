@@ -115,7 +115,7 @@ func (db *NodeSet) Store(target taidb.Putter) {
 	}
 }
 
-// NodeList stores an ordered list of trie nodes. It implements etruedb.Putter.
+// NodeList stores an ordered list of trie nodes. It implements etaidb.Putter.
 type NodeList []rlp.RawValue
 
 // Store writes the contents of the list to the given database

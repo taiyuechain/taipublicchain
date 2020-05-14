@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-// Package etruestats implements the network stats reporting service.
+// Package etaistats implements the network stats reporting service.
 package taistats
 
 import (
@@ -80,8 +80,8 @@ type snailBlockChain interface {
 // chain statistics up to a monitoring server.
 type Service struct {
 	server *p2p.Server      // Peer-to-peer server to retrieve networking infos
-	etrue  *tai.Taichain    // Full Taichain service if monitoring a full node
-	les    *les.LightEtrue  // Light Taichain service if monitoring a light node
+	etai   *tai.Taichain    // Full Taichain service if monitoring a full node
+	les    *les.LightEtai   // Light Taichain service if monitoring a light node
 	engine consensus.Engine // Consensus engine to retrieve variadic block fields
 
 	node string // Name of the node to display on the monitoring page
@@ -94,7 +94,7 @@ type Service struct {
 }
 
 // New returns a monitoring service ready for stats reporting.
-func New(url string, ethServ *tai.Taichain, lesServ *les.LightEtrue) (*Service, error) {
+func New(url string, ethServ *tai.Taichain, lesServ *les.LightEtai) (*Service, error) {
 	// Parse the netstats connection url
 	re := regexp.MustCompile("([^:@]*)(:([^@]*))?@(.+)")
 	parts := re.FindStringSubmatch(url)
@@ -109,7 +109,7 @@ func New(url string, ethServ *tai.Taichain, lesServ *les.LightEtrue) (*Service, 
 		engine = lesServ.Engine()
 	}
 	return &Service{
-		etrue:       ethServ,
+		etai:        ethServ,
 		les:         lesServ,
 		engine:      engine,
 		node:        parts[1],
@@ -151,10 +151,10 @@ func (s *Service) loop() {
 	var blockchain blockChain
 	var txpool txPool
 	var snailBlockChain snailBlockChain
-	if s.etrue != nil {
-		blockchain = s.etrue.BlockChain()
-		txpool = s.etrue.TxPool()
-		snailBlockChain = s.etrue.SnailBlockChain()
+	if s.etai != nil {
+		blockchain = s.etai.BlockChain()
+		txpool = s.etai.TxPool()
+		snailBlockChain = s.etai.SnailBlockChain()
 	} else {
 		blockchain = s.les.BlockChain()
 		txpool = s.les.TxPool()
@@ -381,7 +381,7 @@ func handleHistCh(msg map[string][]interface{}, s *Service, command string) stri
 		} else {
 			s.snailHistCh <- nil
 		}
-		return "continue" // Etruestats sometime sends invalid history requests, ignore those
+		return "continue" // Etaistats sometime sends invalid history requests, ignore those
 	}
 	list, ok := request["list"].([]interface{})
 	if !ok {
@@ -443,9 +443,9 @@ func (s *Service) login(conn *websocket.Conn) error {
 	infos := s.server.NodeInfo()
 
 	var network, protocol string
-	if info := infos.Protocols["etrue"]; info != nil {
+	if info := infos.Protocols["etai"]; info != nil {
 		network = fmt.Sprintf("%d", info.(*tai.NodeInfo).Network)
-		protocol = fmt.Sprintf("etrue/%d", tai.ProtocolVersions[0])
+		protocol = fmt.Sprintf("etai/%d", tai.ProtocolVersions[0])
 	} else {
 		network = fmt.Sprintf("%d", infos.Protocols["les"].(*les.NodeInfo).Network)
 		protocol = fmt.Sprintf("les/%d", les.ClientProtocolVersions[0])
@@ -504,7 +504,7 @@ func (s *Service) report(conn *websocket.Conn) error {
 // reportLatency sends a ping request to the server, measures the RTT time and
 // finally sends a latency update.
 func (s *Service) reportLatency(conn *websocket.Conn) error {
-	// Send the current time to the etruestats server
+	// Send the current time to the etaistats server
 	start := time.Now()
 
 	ping := map[string][]interface{}{
@@ -527,7 +527,7 @@ func (s *Service) reportLatency(conn *websocket.Conn) error {
 	latency := strconv.Itoa(int((time.Since(start) / time.Duration(2)).Nanoseconds() / 1000000))
 
 	// Send back the measured latency
-	log.Trace("Sending measured latency to etruestats", "latency", latency)
+	log.Trace("Sending measured latency to etaistats", "latency", latency)
 
 	stats := map[string][]interface{}{
 		"emit": {"latency", map[string]string{
@@ -590,7 +590,7 @@ func (s *Service) reportBlock(conn *websocket.Conn, block *types.Block) error {
 	details := s.assembleBlockStats(block)
 
 	// Assemble the block report and send it to the server
-	log.Trace("Sending new block to etruestats", "number", details.Number, "hash", details.Hash)
+	log.Trace("Sending new block to etaistats", "number", details.Number, "hash", details.Hash)
 
 	stats := map[string]interface{}{
 		"id":    s.node,
@@ -608,7 +608,7 @@ func (s *Service) reportSnailBlock(conn *websocket.Conn, block *types.SnailBlock
 	details := s.assembleSnaiBlockStats(block)
 
 	// Assemble the block report and send it to the server
-	log.Trace("Sending new snailBlock to etruestats", "number", details.Number, "hash", details.Hash)
+	log.Trace("Sending new snailBlock to etaistats", "number", details.Number, "hash", details.Hash)
 
 	stats := map[string]interface{}{
 		"id":    s.node,
@@ -628,10 +628,10 @@ func (s *Service) assembleBlockStats(block *types.Block) *blockStats {
 		header *types.Header
 		txs    []txStats
 	)
-	if s.etrue != nil {
+	if s.etai != nil {
 		// Full nodes have all needed information available
 		if block == nil {
-			block = s.etrue.BlockChain().CurrentBlock()
+			block = s.etai.BlockChain().CurrentBlock()
 		}
 		header = block.Header()
 
@@ -670,13 +670,13 @@ func (s *Service) assembleSnaiBlockStats(block *types.SnailBlock) *snailBlockSta
 		td          *big.Int
 		fruitNumber *big.Int
 	)
-	if s.etrue != nil {
+	if s.etai != nil {
 		// Full nodes have all needed information available
 		if block == nil {
-			block = s.etrue.SnailBlockChain().CurrentBlock()
+			block = s.etai.SnailBlockChain().CurrentBlock()
 		}
 		header = block.Header()
-		td = s.etrue.SnailBlockChain().GetTd(header.Hash(), header.Number.Uint64())
+		td = s.etai.SnailBlockChain().GetTd(header.Hash(), header.Number.Uint64())
 		fruitNumber = big.NewInt(int64(len((block.Fruits()))))
 	} else {
 		// Light nodes would need on-demand lookups for transactions/uncles, skip
@@ -715,8 +715,8 @@ func (s *Service) reportHistory(conn *websocket.Conn, list []uint64) error {
 	} else {
 		// No indexes requested, send back the top ones
 		var head int64
-		if s.etrue != nil {
-			head = s.etrue.BlockChain().CurrentHeader().Number.Int64()
+		if s.etai != nil {
+			head = s.etai.BlockChain().CurrentHeader().Number.Int64()
 		} else {
 			head = s.les.BlockChain().CurrentHeader().Number.Int64()
 		}
@@ -733,8 +733,8 @@ func (s *Service) reportHistory(conn *websocket.Conn, list []uint64) error {
 	for i, number := range indexes {
 		// Retrieve the next block if it's known to us
 		var block *types.Block
-		if s.etrue != nil {
-			block = s.etrue.BlockChain().GetBlockByNumber(number)
+		if s.etai != nil {
+			block = s.etai.BlockChain().GetBlockByNumber(number)
 		} else {
 			if header := s.les.BlockChain().GetHeaderByNumber(number); header != nil {
 				block = types.NewBlockWithHeader(header)
@@ -751,7 +751,7 @@ func (s *Service) reportHistory(conn *websocket.Conn, list []uint64) error {
 	}
 	// Assemble the history report and send it to the server
 	if len(history) > 0 {
-		log.Trace("Sending historical blocks to etruestats", "first", history[0].Number, "last", history[len(history)-1].Number)
+		log.Trace("Sending historical blocks to etaistats", "first", history[0].Number, "last", history[len(history)-1].Number)
 	} else {
 		log.Trace("No history to send to stats server")
 	}
@@ -773,8 +773,8 @@ func (s *Service) reportSnailHistory(conn *websocket.Conn, list []uint64) error 
 	} else {
 		// No indexes requested, send back the top ones
 		var head int64
-		if s.etrue != nil {
-			head = s.etrue.SnailBlockChain().CurrentHeader().Number.Int64()
+		if s.etai != nil {
+			head = s.etai.SnailBlockChain().CurrentHeader().Number.Int64()
 		} else {
 			//head = s.les.SnailBlockChain().CurrentHeader().Number.Int64()
 		}
@@ -791,8 +791,8 @@ func (s *Service) reportSnailHistory(conn *websocket.Conn, list []uint64) error 
 	for i, number := range indexes {
 		// Retrieve the next block if it's known to us
 		var snailBlock *types.SnailBlock
-		if s.etrue != nil {
-			snailBlock = s.etrue.SnailBlockChain().GetBlockByNumber(number)
+		if s.etai != nil {
+			snailBlock = s.etai.SnailBlockChain().GetBlockByNumber(number)
 		} else {
 			/*if header := s.les.BlockChain().GetHeaderByNumber(number); header != nil {
 				snailBlock = types.NewBlockWithHeader(header)
@@ -809,7 +809,7 @@ func (s *Service) reportSnailHistory(conn *websocket.Conn, list []uint64) error 
 	}
 	// Assemble the history report and send it to the server
 	if len(history) > 0 {
-		log.Trace("Sending historical snaiBlocks to etruestats", "first", history[0].Number, "last", history[len(history)-1].Number)
+		log.Trace("Sending historical snaiBlocks to etaistats", "first", history[0].Number, "last", history[len(history)-1].Number)
 	} else {
 		log.Trace("No history to send to stats server")
 	}
@@ -833,13 +833,13 @@ type pendStats struct {
 func (s *Service) reportPending(conn *websocket.Conn) error {
 	// Retrieve the pending count from the local blockchain
 	var pending int
-	if s.etrue != nil {
-		pending, _ = s.etrue.TxPool().Stats()
+	if s.etai != nil {
+		pending, _ = s.etai.TxPool().Stats()
 	} else {
 		pending = s.les.TxPool().Stats()
 	}
 	// Assemble the transaction stats and send it to the server
-	log.Trace("Sending pending transactions to etruestats", "count", pending)
+	log.Trace("Sending pending transactions to etaistats", "count", pending)
 
 	stats := map[string]interface{}{
 		"id": s.node,
@@ -878,24 +878,24 @@ func (s *Service) reportStats(conn *websocket.Conn) error {
 		syncing           bool
 		gasprice          int
 	)
-	if s.etrue != nil {
-		mining = s.etrue.Miner().Mining()
-		hashrate = int(s.etrue.Miner().HashRate())
+	if s.etai != nil {
+		mining = s.etai.Miner().Mining()
+		hashrate = int(s.etai.Miner().HashRate())
 
-		sync := s.etrue.Downloader().Progress()
-		syncing = s.etrue.BlockChain().CurrentHeader().Number.Uint64() >= sync.HighestFastBlock
+		sync := s.etai.Downloader().Progress()
+		syncing = s.etai.BlockChain().CurrentHeader().Number.Uint64() >= sync.HighestFastBlock
 
-		price, _ := s.etrue.APIBackend.SuggestPrice(context.Background())
+		price, _ := s.etai.APIBackend.SuggestPrice(context.Background())
 		gasprice = int(price.Uint64())
 
-		isCommitteeMember = s.etrue.PbftAgent().IsCommitteeMember()
-		isLeader = s.etrue.PbftAgent().IsLeader()
+		isCommitteeMember = s.etai.PbftAgent().IsCommitteeMember()
+		isLeader = s.etai.PbftAgent().IsLeader()
 	} else {
 		sync := s.les.Downloader().Progress()
 		syncing = s.les.BlockChain().CurrentHeader().Number.Uint64() >= sync.HighestFastBlock
 	}
 	// Assemble the node stats and send it to the server
-	log.Trace("Sending node details to etruestats")
+	log.Trace("Sending node details to etaistats")
 	nodeStats := &nodeStats{
 		Active:            true,
 		Mining:            mining,

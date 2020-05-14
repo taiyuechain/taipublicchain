@@ -103,7 +103,7 @@ func committeeEqual(left, right []*types.CommitteeMember) bool {
 
 func makeChain(n int) (*snailchain.SnailBlockChain, *core.BlockChain) {
 	var (
-		// 	testdb  = etruedb.NewMemDatabase()
+		// 	testdb  = taidb.NewMemDatabase()
 		genesis = core.DefaultGenesisBlock()
 	// 	engine  = minerva.NewFaker()
 	)

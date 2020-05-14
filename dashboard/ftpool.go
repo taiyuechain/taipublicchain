@@ -23,7 +23,7 @@ import (
 // collectTxpoolData gathers data about the tx_pool and sends it to the clients.
 func (db *Dashboard) collectFruitpoolData() {
 	defer db.wg.Done()
-	fruitpool := db.etrue.SnailPool()
+	fruitpool := db.etai.SnailPool()
 	var (
 		// Metrics for the pending pool
 		fruitPendingDiscardCounter = standardCounterCollector("fruitpool/pending/discard")

@@ -29,24 +29,24 @@ import (
 
 // Constants to match up protocol versions and messages
 const (
-	etrue63 = 63
-	etrue64 = 64
+	etai63 = 63
+	etai64 = 64
 )
 
 // ProtocolName is the official short name of the protocol used during capability negotiation.
-var ProtocolName = "etrue"
+var ProtocolName = "etai"
 
-// ProtocolVersions are the upported versions of the etrue protocol (first is primary).
-var ProtocolVersions = []uint{etrue64, etrue63}
+// ProtocolVersions are the upported versions of the etai protocol (first is primary).
+var ProtocolVersions = []uint{etai64, etai63}
 
 // ProtocolLengths are the number of implemented message corresponding to different protocol versions.
 var ProtocolLengths = []uint64{32, 20}
 
 const ProtocolMaxMsgSize = 10 * 1024 * 1024 // Maximum cap on the size of a protocol message
 
-// etrue protocol message codes
+// etai protocol message codes
 const (
-	// Protocol messages belonging to etrue/63
+	// Protocol messages belonging to etai/63
 	StatusMsg              = 0x00
 	NewFastBlockHashesMsg  = 0x01
 	TxMsg                  = 0x02

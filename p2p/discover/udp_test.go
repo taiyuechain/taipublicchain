@@ -135,7 +135,7 @@ func TestUDP_packetErrors(t *testing.T) {
 	test := newUDPTest(t)
 	defer test.close()
 
-	test.packetIn(errExpired, pingPacket, &ping{From: testRemote, To: testLocalAnnounced, Version: 520})
+	test.packetIn(errExpired, pingPacket, &ping{From: testRemote, To: testLocalAnnounced, Version: trueVersion})
 	test.packetIn(errUnsolicitedReply, pongPacket, &pong{ReplyTok: []byte{}, Expiration: futureExp})
 	test.packetIn(errUnknownNode, findnodePacket, &findnode{Expiration: futureExp})
 	test.packetIn(errUnsolicitedReply, neighborsPacket, &neighbors{Expiration: futureExp})
@@ -359,7 +359,7 @@ func TestUDP_pingMatch(t *testing.T) {
 	randToken := make([]byte, 32)
 	crand.Read(randToken)
 
-	test.packetIn(nil, pingPacket, &ping{From: testRemote, To: testLocalAnnounced, Version: 520, Expiration: futureExp})
+	test.packetIn(nil, pingPacket, &ping{From: testRemote, To: testLocalAnnounced, Version: trueVersion, Expiration: futureExp})
 	test.waitPacketOut(func(*pong) error { return nil })
 	test.waitPacketOut(func(*ping) error { return nil })
 	test.packetIn(errUnsolicitedReply, pongPacket, &pong{ReplyTok: randToken, To: testLocalAnnounced, Expiration: futureExp})
@@ -369,7 +369,7 @@ func TestUDP_pingMatchIP(t *testing.T) {
 	test := newUDPTest(t)
 	defer test.close()
 
-	test.packetIn(nil, pingPacket, &ping{From: testRemote, To: testLocalAnnounced, Version: 520, Expiration: futureExp})
+	test.packetIn(nil, pingPacket, &ping{From: testRemote, To: testLocalAnnounced, Version: trueVersion, Expiration: futureExp})
 	test.waitPacketOut(func(*pong) error { return nil })
 
 	_, hash, _ := test.waitPacketOut(func(*ping) error { return nil })
@@ -388,7 +388,7 @@ func TestUDP_successfulPing(t *testing.T) {
 	defer test.close()
 
 	// The remote side sends a ping packet to initiate the exchange.
-	go test.packetIn(nil, pingPacket, &ping{From: testRemote, To: testLocalAnnounced, Version: 520, Expiration: futureExp})
+	go test.packetIn(nil, pingPacket, &ping{From: testRemote, To: testLocalAnnounced, Version: trueVersion, Expiration: futureExp})
 
 	// the ping is replied to.
 	test.waitPacketOut(func(p *pong) {

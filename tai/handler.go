@@ -379,7 +379,7 @@ func resolveVersionFromName(name string) bool {
 	return false
 }
 
-// handle is the callback invoked to manage the life cycle of an etrue peer. When
+// handle is the callback invoked to manage the life cycle of an etai peer. When
 // this function terminates, the peer is disconnected.
 func (pm *ProtocolManager) handle(p *peer) error {
 	// Ignore maxPeers if this is a trusted peer
@@ -403,7 +403,7 @@ func (pm *ProtocolManager) handle(p *peer) error {
 		commitHeight = pm.blockchain.CurrentCommitHeight()
 	)
 
-	if p.version >= etrue64 {
+	if p.version >= etai64 {
 		if err := p.SnapHandshake(pm.networkID, td, hash, genesis.Hash(), fastHash, fastHeight, gcHeight, commitHeight); err != nil {
 			p.Log().Debug("Taichain handshake failed", "err", err)
 			return err

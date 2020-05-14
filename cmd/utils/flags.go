@@ -401,9 +401,9 @@ var (
 		Usage: "Record information useful for VM and contract debugging",
 	}
 	// Logging and debug settings
-	EtrueStatsURLFlag = cli.StringFlag{
-		Name:  "etruestats",
-		Usage: "Reporting URL of a etruestats service (nodename:secret@host:port)",
+	EtaiStatsURLFlag = cli.StringFlag{
+		Name:  "etaistats",
+		Usage: "Reporting URL of a etaistats service (nodename:secret@host:port)",
 	}
 	FakePoWFlag = cli.BoolFlag{
 		Name:  "fakepow",
@@ -893,7 +893,7 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 	if lightClient {
 		ethPeers = 0
 	}
-	log.Info("Maximum peer count", "ETRUE", ethPeers, "LES", lightPeers, "total", cfg.MaxPeers)
+	log.Info("Maximum peer count", "ETAI", ethPeers, "LES", lightPeers, "total", cfg.MaxPeers)
 
 	if ctx.GlobalIsSet(MaxPendingPeersFlag.Name) {
 		cfg.MaxPendingPeers = ctx.GlobalInt(MaxPendingPeersFlag.Name)
@@ -1050,7 +1050,7 @@ func checkExclusive(ctx *cli.Context, args ...interface{}) {
 	}
 }
 
-// SetTruechainConfig applies etrue-related command line flags to the config.
+// SetTruechainConfig applies etai-related command line flags to the config.
 func SetTruechainConfig(ctx *cli.Context, stack *node.Node, cfg *tai.Config) {
 	// Avoid conflicting network flags
 	checkExclusive(ctx, TestnetFlag, DevnetFlag)
@@ -1197,8 +1197,8 @@ func SetDashboardConfig(ctx *cli.Context, cfg *dashboard.Config) {
 	cfg.Refresh = ctx.GlobalDuration(DashboardRefreshFlag.Name)
 }
 
-// RegisterEtrueService adds an Taichain client to the stack.
-func RegisterEtrueService(stack *node.Node, cfg *tai.Config) {
+// RegisterEtaiService adds an Taichain client to the stack.
+func RegisterEtaiService(stack *node.Node, cfg *tai.Config) {
 	var err error
 	if cfg.SyncMode == downloader.LightSync {
 		err = stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
@@ -1222,10 +1222,10 @@ func RegisterEtrueService(stack *node.Node, cfg *tai.Config) {
 // RegisterDashboardService adds a dashboard to the stack.
 func RegisterDashboardService(stack *node.Node, cfg *dashboard.Config, commit string) {
 	if err := stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-		// Retrieve both etrue and les services
-		var etrueServ *tai.Taichain
-		ctx.Service(&etrueServ)
-		return dashboard.New(cfg, commit, ctx.ResolvePath("logs"), etrueServ), nil
+		// Retrieve both etai and les services
+		var etaiServ *tai.Taichain
+		ctx.Service(&etaiServ)
+		return dashboard.New(cfg, commit, ctx.ResolvePath("logs"), etaiServ), nil
 	}); err != nil {
 		Fatalf("Failed to register the Taichain Stats service: %v", err)
 	}
@@ -1234,18 +1234,18 @@ func RegisterDashboardService(stack *node.Node, cfg *dashboard.Config, commit st
 	})*/
 }
 
-// RegisterEtrueStatsService configures the Taichain Stats daemon and adds it to
+// RegisterEtaiStatsService configures the Taichain Stats daemon and adds it to
 // th egiven node.
-func RegisterEtrueStatsService(stack *node.Node, url string) {
+func RegisterEtaiStatsService(stack *node.Node, url string) {
 	if err := stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-		// Retrieve both etrue and les services
-		var etrueServ *tai.Taichain
-		ctx.Service(&etrueServ)
+		// Retrieve both etai and les services
+		var etaiServ *tai.Taichain
+		ctx.Service(&etaiServ)
 
-		var lesServ *les.LightEtrue
+		var lesServ *les.LightEtai
 		ctx.Service(&lesServ)
 
-		return taistats.New(url, etrueServ, lesServ)
+		return taistats.New(url, etaiServ, lesServ)
 	}); err != nil {
 		Fatalf("Failed to register the Taichain Stats service: %v", err)
 	}

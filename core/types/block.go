@@ -224,7 +224,7 @@ type Block struct {
 	// of the chain up to and including the block.
 	// td *big.Int
 
-	// These fields are used by package etrue to track
+	// These fields are used by package etai to track
 	// inter-peer block relay.
 	ReceivedAt   time.Time
 	ReceivedFrom interface{}
@@ -322,7 +322,7 @@ func CopyHeader(h *Header) *Header {
 	return &cpy
 }
 
-// "external" block encoding. used for etrue protocol, etc.
+// "external" block encoding. used for etai protocol, etc.
 type extblock struct {
 	Header *Header
 	Txs    []*Transaction
@@ -539,13 +539,13 @@ type SnailBlock struct {
 	// of the chain up to and including the block.
 	td *big.Int
 
-	// These fields are used by package etrue to track
+	// These fields are used by package etai to track
 	// inter-peer block relay.
 	ReceivedAt   time.Time
 	ReceivedFrom interface{}
 }
 
-// "external" block encoding. used for etrue protocol, etc.
+// "external" block encoding. used for etai protocol, etc.
 type extsnailblock struct {
 	Header *SnailHeader
 	Fruits []*SnailBlock

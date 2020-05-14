@@ -31,7 +31,7 @@ import (
 
 	"github.com/taiyuechain/taipublicchain/common"
 	"github.com/taiyuechain/taipublicchain/log"
-	etrue "github.com/taiyuechain/taipublicchain/tai/types"
+	etai "github.com/taiyuechain/taipublicchain/tai/types"
 )
 
 const (
@@ -66,7 +66,7 @@ type peerConnection struct {
 
 	lacking map[common.Hash]struct{} // Set of hashes not to request (didn't have previously)
 
-	peer etrue.Peer
+	peer etai.Peer
 
 	version int        // Eth protocol version number to switch strategies
 	log     log.Logger // Contextual logger to add extra infos to peer logs
@@ -75,7 +75,7 @@ type peerConnection struct {
 
 // lightPeerWrapper wraps a LightPeer struct, stubbing out the Peer-only methods.
 type lightPeerWrapper struct {
-	peer etrue.LightPeer
+	peer etai.LightPeer
 }
 
 func (w *lightPeerWrapper) Head() (common.Hash, *big.Int) { return w.peer.Head() }
@@ -96,7 +96,7 @@ func (w *lightPeerWrapper) RequestNodeData([]common.Hash, bool) error {
 }
 
 // newPeerConnection creates a new downloader peer.
-func newPeerConnection(id string, version int, peer etrue.Peer, logger log.Logger) *peerConnection {
+func newPeerConnection(id string, version int, peer etai.Peer, logger log.Logger) *peerConnection {
 	return &peerConnection{
 		id:      id,
 		lacking: make(map[common.Hash]struct{}),
@@ -132,10 +132,10 @@ func (p *peerConnection) GetStateStarted() time.Time   { return p.stateStarted }
 func (p *peerConnection) GetID() string   { return p.id }
 func (p *peerConnection) GetVersion() int { return p.version }
 
-func (p *peerConnection) GetPeer() etrue.Peer     { return p.peer }
-func (p *peerConnection) SetPeer(peer etrue.Peer) { p.peer = peer }
-func (p *peerConnection) GetLog() log.Logger      { return p.log }
-func (p *peerConnection) GetLock() *sync.RWMutex  { return &p.lock }
+func (p *peerConnection) GetPeer() etai.Peer     { return p.peer }
+func (p *peerConnection) SetPeer(peer etai.Peer) { p.peer = peer }
+func (p *peerConnection) GetLog() log.Logger     { return p.log }
+func (p *peerConnection) GetLock() *sync.RWMutex { return &p.lock }
 
 // Reset clears the internal state of a peer entity.
 func (p *peerConnection) Reset() {
@@ -173,7 +173,7 @@ func (p *peerConnection) FetchHeaders(from uint64, count int) error {
 }
 
 // FetchBodies sends a block body retrieval request to the remote peer.
-func (p *peerConnection) FetchBodies(request *etrue.FetchRequest) error {
+func (p *peerConnection) FetchBodies(request *etai.FetchRequest) error {
 	// Sanity check the protocol version
 	if p.version < 62 {
 		panic(fmt.Sprintf("Fast body fetch [eth/62+] requested on eth/%d", p.version))
@@ -195,7 +195,7 @@ func (p *peerConnection) FetchBodies(request *etrue.FetchRequest) error {
 }
 
 // FetchReceipts sends a receipt retrieval request to the remote peer.
-func (p *peerConnection) FetchReceipts(request *etrue.FetchRequest) error {
+func (p *peerConnection) FetchReceipts(request *etai.FetchRequest) error {
 	// Sanity check the protocol version
 	if p.version < 63 {
 		panic(fmt.Sprintf("Fast body fetch [eth/63+] requested on eth/%d", p.version))

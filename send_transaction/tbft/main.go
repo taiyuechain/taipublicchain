@@ -101,7 +101,7 @@ func getTime() string {
 
 //send transaction init
 func send(count int, ip string) {
-	//dial etrue
+	//dial etai
 start:
 	client, err := rpc.Dial("http://" + ip)
 	if err != nil {
@@ -109,9 +109,9 @@ start:
 		return
 	}
 
-	err = client.Call(&account, "etrue_accounts")
+	err = client.Call(&account, "etai_accounts")
 	if err != nil {
-		fmt.Println(getTime(), "etrue_accounts Error", err.Error())
+		fmt.Println(getTime(), "etai_accounts Error", err.Error())
 		return
 	}
 	if len(account) == 0 {
@@ -122,14 +122,14 @@ start:
 
 	// get balance
 	var result string = ""
-	err = client.Call(&result, "etrue_getBalance", account[from], "latest")
+	err = client.Call(&result, "etai_getBalance", account[from], "latest")
 	if err != nil {
-		fmt.Println(getTime(), "etrue_getBalance Error:", err)
+		fmt.Println(getTime(), "etai_getBalance Error:", err)
 		return
 	} else {
 
 		bl, _ := new(big.Int).SetString(result, 10)
-		fmt.Println(getTime(), "etrue_getBalance Ok:", bl, result)
+		fmt.Println(getTime(), "etai_getBalance Ok:", bl, result)
 	}
 
 	//unlock account
@@ -159,13 +159,13 @@ start:
 		}
 		time.Sleep(interval)
 		// get balance
-		err = client.Call(&result, "etrue_getBalance", account[from], "latest")
+		err = client.Call(&result, "etai_getBalance", account[from], "latest")
 		if err != nil {
-			fmt.Println(getTime(), "etrue_getBalance Error:", err)
+			fmt.Println(getTime(), "etai_getBalance Error:", err)
 			//return
 		} else {
 			bl, _ := new(big.Int).SetString(result, 10)
-			fmt.Println(getTime(), "etrue_getBalance Ok:", bl, result)
+			fmt.Println(getTime(), "etai_getBalance Ok:", bl, result)
 
 			if preAccount == result && CheckAcc {
 				bSleep = true
@@ -207,7 +207,7 @@ func sendTransaction(client *rpc.Client, account []string, wait *sync.WaitGroup)
 	map_data["to"] = account[to]
 	map_data["value"] = "0x2100"
 	var result string
-	client.Call(&result, "etrue_sendTransaction", map_data)
+	client.Call(&result, "etai_sendTransaction", map_data)
 	if result != "" {
 		Count += 1
 	}
