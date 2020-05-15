@@ -68,7 +68,7 @@ func testStatusMsgErrors(t *testing.T, protocol int) {
 			},
 			{
 				code: StatusMsg, data: statusData{uint32(protocol), 999, td, fastHeight, head.Hash(), genesis.Hash(), fastHash},
-				wantError: errResp(ErrNetworkIdMismatch, "999 (!= 19330)"),
+				wantError: errResp(ErrNetworkIdMismatch, "999 (!= 20515)"),
 			},
 			{
 				code: StatusMsg, data: statusData{uint32(protocol), DefaultConfig.NetworkId, td, fastHeight, head.Hash(), common.Hash{3}, fastHash},
@@ -109,7 +109,7 @@ func testStatusMsgErrors(t *testing.T, protocol int) {
 			},
 			{
 				code: StatusMsg, data: statusSnapData{uint32(protocol), 999, td, fastHeight, head.Hash(), genesis.Hash(), fastHash, gcHeight, committHeight},
-				wantError: errResp(ErrNetworkIdMismatch, "999 (!= 19330)"),
+				wantError: errResp(ErrNetworkIdMismatch, "999 (!= 20515)"),
 			},
 			{
 				code: StatusMsg, data: statusSnapData{uint32(protocol), DefaultConfig.NetworkId, td, fastHeight, head.Hash(), common.Hash{3}, fastHash, gcHeight, committHeight},

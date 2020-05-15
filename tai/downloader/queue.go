@@ -30,7 +30,7 @@ import (
 	"github.com/taiyuechain/taipublicchain/core/types"
 	"github.com/taiyuechain/taipublicchain/log"
 	"github.com/taiyuechain/taipublicchain/metrics"
-	etai "github.com/taiyuechain/taipublicchain/tai/types"
+	tai "github.com/taiyuechain/taipublicchain/tai/types"
 )
 
 var (
@@ -53,7 +53,7 @@ type queue struct {
 	headerTaskPool  map[uint64]*types.SnailHeader  // [eth/62] Pending header retrieval tasks, mapping starting indexes to skeleton headers
 	headerTaskQueue *prque.Prque                   // [eth/62] Priority queue of the skeleton indexes to fetch the filling headers for
 	headerPeerMiss  map[string]map[uint64]struct{} // [eth/62] Set of per-peer header batches known to be unavailable
-	headerPendPool  map[string]*etai.FetchRequest  // [eth/62] Currently pending header retrieval operations
+	headerPendPool  map[string]*tai.FetchRequest   // [eth/62] Currently pending header retrieval operations
 	headerResults   []*types.SnailHeader           // [eth/62] Result cache accumulating the completed headers
 	headerProced    int                            // [eth/62] Number of headers already processed from the results
 	headerOffset    uint64                         // [eth/62] Number of the first header in the result cache
@@ -62,12 +62,12 @@ type queue struct {
 	// All data retrievals below are based on an already assembles header chain
 	blockTaskPool  map[common.Hash]*types.SnailHeader // [eth/62] Pending block (body) retrieval tasks, mapping hashes to headers
 	blockTaskQueue *prque.Prque                       // [eth/62] Priority queue of the headers to fetch the blocks (bodies) for
-	blockPendPool  map[string]*etai.FetchRequest      // [eth/62] Currently pending block (body) retrieval operations
+	blockPendPool  map[string]*tai.FetchRequest       // [eth/62] Currently pending block (body) retrieval operations
 	blockDonePool  map[common.Hash]struct{}           // [eth/62] Set of the completed block (body) fetches
 
-	resultCache  []*etai.FetchResult // Downloaded but not yet delivered fetch results
-	resultOffset uint64              // Offset of the first cached fetch result in the block chain
-	resultSize   common.StorageSize  // Approximate size of a block (exponential moving average)
+	resultCache  []*tai.FetchResult // Downloaded but not yet delivered fetch results
+	resultOffset uint64             // Offset of the first cached fetch result in the block chain
+	resultSize   common.StorageSize // Approximate size of a block (exponential moving average)
 
 	lock       *sync.Mutex
 	active     *sync.Cond
@@ -80,13 +80,13 @@ func newQueue(chain BlockChain) *queue {
 	lock := new(sync.Mutex)
 	return &queue{
 		blockchain:     chain,
-		headerPendPool: make(map[string]*etai.FetchRequest),
+		headerPendPool: make(map[string]*tai.FetchRequest),
 		headerContCh:   make(chan bool),
 		blockTaskPool:  make(map[common.Hash]*types.SnailHeader),
 		blockTaskQueue: prque.New(nil),
-		blockPendPool:  make(map[string]*etai.FetchRequest),
+		blockPendPool:  make(map[string]*tai.FetchRequest),
 		blockDonePool:  make(map[common.Hash]struct{}),
-		resultCache:    make([]*etai.FetchResult, blockCacheItems),
+		resultCache:    make([]*tai.FetchResult, blockCacheItems),
 		active:         sync.NewCond(lock),
 		lock:           lock,
 	}
@@ -101,14 +101,14 @@ func (q *queue) Reset() {
 	q.mode = FullSync
 
 	q.headerHead = common.Hash{}
-	q.headerPendPool = make(map[string]*etai.FetchRequest)
+	q.headerPendPool = make(map[string]*tai.FetchRequest)
 
 	q.blockTaskPool = make(map[common.Hash]*types.SnailHeader)
 	q.blockTaskQueue.Reset()
-	q.blockPendPool = make(map[string]*etai.FetchRequest)
+	q.blockPendPool = make(map[string]*tai.FetchRequest)
 	q.blockDonePool = make(map[common.Hash]struct{})
 
-	q.resultCache = make([]*etai.FetchResult, blockCacheItems)
+	q.resultCache = make([]*tai.FetchResult, blockCacheItems)
 	q.resultOffset = 0
 }
 
@@ -179,7 +179,7 @@ func (q *queue) ShouldThrottleBlocks() bool {
 // resultSlots calculates the number of results slots available for requests
 // whilst adhering to both the item and the memory limit too of the results
 // cache.
-func (q *queue) resultSlots(pendPool map[string]*etai.FetchRequest, donePool map[common.Hash]struct{}) int {
+func (q *queue) resultSlots(pendPool map[string]*tai.FetchRequest, donePool map[common.Hash]struct{}) int {
 	// Calculate the maximum length capped by the memory limit
 	limit := len(q.resultCache)
 	if common.StorageSize(len(q.resultCache))*q.resultSize > common.StorageSize(blockCacheMemory) {
@@ -284,7 +284,7 @@ func (q *queue) Schedule(headers []*types.SnailHeader, from uint64) []*types.Sna
 
 // Results retrieves and permanently removes a batch of fetch results from
 // the cache. the result slice will be empty if the queue has been closed.
-func (q *queue) Results(block bool) []*etai.FetchResult {
+func (q *queue) Results(block bool) []*tai.FetchResult {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	// Count the number of items available for processing
@@ -300,7 +300,7 @@ func (q *queue) Results(block bool) []*etai.FetchResult {
 	if nproc > maxResultsProcess {
 		nproc = maxResultsProcess
 	}
-	results := make([]*etai.FetchResult, nproc)
+	results := make([]*tai.FetchResult, nproc)
 	copy(results, q.resultCache[:nproc])
 	if len(results) > 0 {
 		// Mark results as done before dropping them from the cache.
@@ -342,7 +342,7 @@ func (q *queue) countProcessableItems() int {
 
 // ReserveHeaders reserves a set of headers for the given peer, skipping any
 // previously failed batches.
-func (q *queue) ReserveHeaders(p etai.PeerConnection, count int) *etai.FetchRequest {
+func (q *queue) ReserveHeaders(p tai.PeerConnection, count int) *tai.FetchRequest {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 
@@ -371,7 +371,7 @@ func (q *queue) ReserveHeaders(p etai.PeerConnection, count int) *etai.FetchRequ
 	if send == 0 {
 		return nil
 	}
-	request := &etai.FetchRequest{
+	request := &tai.FetchRequest{
 		Peer: p,
 		From: send,
 		Time: time.Now(),
@@ -383,7 +383,7 @@ func (q *queue) ReserveHeaders(p etai.PeerConnection, count int) *etai.FetchRequ
 // ReserveBodies reserves a set of body fetches for the given peer, skipping any
 // previously failed downloads. Beside the next batch of needed fetches, it also
 // returns a flag whether empty blocks were queued requiring processing.
-func (q *queue) ReserveBodies(p etai.PeerConnection, count int) (*etai.FetchRequest, bool, error) {
+func (q *queue) ReserveBodies(p tai.PeerConnection, count int) (*tai.FetchRequest, bool, error) {
 	isNoop := func(header *types.SnailHeader) bool {
 		return false
 	}
@@ -400,8 +400,8 @@ func (q *queue) ReserveBodies(p etai.PeerConnection, count int) (*etai.FetchRequ
 // Note, this method expects the queue lock to be already held for writing. The
 // reason the lock is not obtained in here is because the parameters already need
 // to access the queue, so they already need a lock anyway.
-func (q *queue) reserveHeaders(p etai.PeerConnection, count int, taskPool map[common.Hash]*types.SnailHeader, taskQueue *prque.Prque,
-	pendPool map[string]*etai.FetchRequest, donePool map[common.Hash]struct{}, isNoop func(*types.SnailHeader) bool) (*etai.FetchRequest, bool, error) {
+func (q *queue) reserveHeaders(p tai.PeerConnection, count int, taskPool map[common.Hash]*types.SnailHeader, taskQueue *prque.Prque,
+	pendPool map[string]*tai.FetchRequest, donePool map[common.Hash]struct{}, isNoop func(*types.SnailHeader) bool) (*tai.FetchRequest, bool, error) {
 	// Short circuit if the pool has been depleted, or if the peer's already
 	// downloading something (sanity check not to corrupt state)
 	if taskQueue.Empty() {
@@ -431,7 +431,7 @@ func (q *queue) reserveHeaders(p etai.PeerConnection, count int, taskPool map[co
 		if q.resultCache[index] == nil {
 			components := 1
 
-			q.resultCache[index] = &etai.FetchResult{
+			q.resultCache[index] = &tai.FetchResult{
 				Pending: components,
 				Hash:    hash,
 				Sheader: header,
@@ -467,7 +467,7 @@ func (q *queue) reserveHeaders(p etai.PeerConnection, count int, taskPool map[co
 		return nil, progress, nil
 	}
 	log.Debug("reserve snail Headers", "space", space, "skip", len(skip), "pendPool", len(pendPool), "donePool", len(donePool), "count", count, "send", len(send), "progress", progress)
-	request := &etai.FetchRequest{
+	request := &tai.FetchRequest{
 		Peer:     p,
 		Sheaders: send,
 		Time:     time.Now(),
@@ -478,18 +478,18 @@ func (q *queue) reserveHeaders(p etai.PeerConnection, count int, taskPool map[co
 }
 
 // CancelHeaders aborts a fetch request, returning all pending skeleton indexes to the queue.
-func (q *queue) CancelHeaders(request *etai.FetchRequest) {
+func (q *queue) CancelHeaders(request *tai.FetchRequest) {
 	q.cancel(request, q.headerTaskQueue, q.headerPendPool)
 }
 
 // CancelBodies aborts a body fetch request, returning all pending headers to the
 // task queue.
-func (q *queue) CancelBodies(request *etai.FetchRequest) {
+func (q *queue) CancelBodies(request *tai.FetchRequest) {
 	q.cancel(request, q.blockTaskQueue, q.blockPendPool)
 }
 
 // Cancel aborts a fetch request, returning all pending hashes to the task queue.
-func (q *queue) cancel(request *etai.FetchRequest, taskQueue *prque.Prque, pendPool map[string]*etai.FetchRequest) {
+func (q *queue) cancel(request *tai.FetchRequest, taskQueue *prque.Prque, pendPool map[string]*tai.FetchRequest) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 
@@ -541,7 +541,7 @@ func (q *queue) ExpireBodies(timeout time.Duration) map[string]int {
 // Note, this method expects the queue lock to be already held. The
 // reason the lock is not obtained in here is because the parameters already need
 // to access the queue, so they already need a lock anyway.
-func (q *queue) expire(timeout time.Duration, pendPool map[string]*etai.FetchRequest, taskQueue *prque.Prque, timeoutMeter metrics.Meter) map[string]int {
+func (q *queue) expire(timeout time.Duration, pendPool map[string]*tai.FetchRequest, taskQueue *prque.Prque, timeoutMeter metrics.Meter) map[string]int {
 	// Iterate over the expired requests and return each to the queue
 	expiries := make(map[string]int)
 	for id, request := range pendPool {
@@ -661,7 +661,7 @@ func (q *queue) DeliverBodies(id string, fruitsLists [][]*types.SnailBlock) (int
 	q.lock.Lock()
 	defer q.lock.Unlock()
 
-	reconstruct := func(header *types.SnailHeader, index int, result *etai.FetchResult) error {
+	reconstruct := func(header *types.SnailHeader, index int, result *tai.FetchResult) error {
 		if q.blockchain.GetFruitsHash(header, fruitsLists[index]) != header.FruitsHash {
 			return errInvalidChain
 		}
@@ -677,8 +677,8 @@ func (q *queue) DeliverBodies(id string, fruitsLists [][]*types.SnailBlock) (int
 // reason the lock is not obtained in here is because the parameters already need
 // to access the queue, so they already need a lock anyway.
 func (q *queue) deliver(id string, taskPool map[common.Hash]*types.SnailHeader, taskQueue *prque.Prque,
-	pendPool map[string]*etai.FetchRequest, donePool map[common.Hash]struct{}, reqTimer metrics.Timer,
-	results int, reconstruct func(header *types.SnailHeader, index int, result *etai.FetchResult) error) (int, error) {
+	pendPool map[string]*tai.FetchRequest, donePool map[common.Hash]struct{}, reqTimer metrics.Timer,
+	results int, reconstruct func(header *types.SnailHeader, index int, result *tai.FetchResult) error) (int, error) {
 
 	// Short circuit if the data was never requested
 	request := pendPool[id]

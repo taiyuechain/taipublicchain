@@ -34,9 +34,9 @@ const (
 )
 
 // ProtocolName is the official short name of the protocol used during capability negotiation.
-var ProtocolName = "etai"
+var ProtocolName = "tai"
 
-// ProtocolVersions are the upported versions of the etai protocol (first is primary).
+// ProtocolVersions are the upported versions of the tai protocol (first is primary).
 var ProtocolVersions = []uint{etai64, etai63}
 
 // ProtocolLengths are the number of implemented message corresponding to different protocol versions.
@@ -44,9 +44,9 @@ var ProtocolLengths = []uint64{32, 20}
 
 const ProtocolMaxMsgSize = 10 * 1024 * 1024 // Maximum cap on the size of a protocol message
 
-// etai protocol message codes
+// tai protocol message codes
 const (
-	// Protocol messages belonging to etai/63
+	// Protocol messages belonging to tai/63
 	StatusMsg              = 0x00
 	NewFastBlockHashesMsg  = 0x01
 	TxMsg                  = 0x02

@@ -37,7 +37,7 @@ var (
 var (
 	// MainnetChainConfig is the chain parameters to run a node on the main network.
 	MainnetChainConfig = &ChainConfig{
-		ChainID: big.NewInt(19330),
+		ChainID: big.NewInt(20515),
 		Minerva: &(MinervaConfig{
 			MinimumDifficulty:      big.NewInt(134217728),
 			MinimumFruitDifficulty: big.NewInt(262144),

@@ -50,16 +50,16 @@ type LesServer struct {
 	chtIndexer, bloomTrieIndexer *core.ChainIndexer
 }
 
-func NewLesServer(etai *tai.Taichain, config *tai.Config) (*LesServer, error) {
+func NewLesServer(tai *tai.Taichain, config *tai.Config) (*LesServer, error) {
 	quitSync := make(chan struct{})
-	pm, err := NewProtocolManager(etai.BlockChain().Config(), false, ServerProtocolVersions, config.NetworkId, etai.EventMux(), etai.Engine(), newPeerSet(), nil, etai.TxPool(), etai.ChainDb(), nil, nil, nil, quitSync, new(sync.WaitGroup))
+	pm, err := NewProtocolManager(tai.BlockChain().Config(), false, ServerProtocolVersions, config.NetworkId, tai.EventMux(), tai.Engine(), newPeerSet(), nil, tai.TxPool(), tai.ChainDb(), nil, nil, nil, quitSync, new(sync.WaitGroup))
 	if err != nil {
 		return nil, err
 	}
 
 	lesTopics := make([]discv5.Topic, len(AdvertiseProtocolVersions))
 	for i, pv := range AdvertiseProtocolVersions {
-		lesTopics[i] = lesTopic(etai.BlockChain().Genesis().Hash(), pv)
+		lesTopics[i] = lesTopic(tai.BlockChain().Genesis().Hash(), pv)
 	}
 
 	srv := &LesServer{
@@ -67,8 +67,8 @@ func NewLesServer(etai *tai.Taichain, config *tai.Config) (*LesServer, error) {
 		protocolManager:  pm,
 		quitSync:         quitSync,
 		lesTopics:        lesTopics,
-		chtIndexer:       light.NewChtIndexer(etai.ChainDb(), false),
-		bloomTrieIndexer: light.NewBloomTrieIndexer(etai.ChainDb(), false),
+		chtIndexer:       light.NewChtIndexer(tai.ChainDb(), false),
+		bloomTrieIndexer: light.NewBloomTrieIndexer(tai.ChainDb(), false),
 	}
 	logger := log.New()
 
@@ -91,7 +91,7 @@ func NewLesServer(etai *tai.Taichain, config *tai.Config) (*LesServer, error) {
 		logger.Info("Loaded bloom trie", "section", bloomTrieLastSection, "head", bloomTrieSectionHead, "root", bloomTrieRoot)
 	}
 
-	srv.chtIndexer.Start(etai.BlockChain())
+	srv.chtIndexer.Start(tai.BlockChain())
 	pm.server = srv
 
 	srv.defParams = &flowcontrol.ServerParams{
@@ -99,7 +99,7 @@ func NewLesServer(etai *tai.Taichain, config *tai.Config) (*LesServer, error) {
 		MinRecharge: 50000,
 	}
 	srv.fcManager = flowcontrol.NewClientManager(uint64(config.LightServ), 10, 1000000000)
-	srv.fcCostStats = newCostStats(etai.ChainDb())
+	srv.fcCostStats = newCostStats(tai.ChainDb())
 	return srv, nil
 }
 

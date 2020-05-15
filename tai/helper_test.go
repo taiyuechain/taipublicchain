@@ -93,7 +93,7 @@ func newTestProtocolManager(mode downloader.SyncMode, blocks int, sBlocks int, g
 		panic(err)
 	}
 
-	//snailPool	etai.snailblockchain
+	//snailPool	tai.snailblockchain
 	pm, err := NewProtocolManager(gspec.Config, mode, DefaultConfig.NetworkId, evmux, &testTxPool{added: newtx}, &testSnailPool{added: newft}, engine, blockchain, snailChain, db, pbftAgent)
 	if err != nil {
 		return nil, nil, err

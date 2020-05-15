@@ -74,7 +74,7 @@ func (ec *Client) ChainID(ctx context.Context) (*big.Int, error) {
 //
 // Note that loading full blocks requires two requests.
 func (ec *Client) SnailBlockByHash(ctx context.Context, hash Hash) (*rpcSnailBlock, error) {
-	return ec.getSnailBlock(ctx, "etai_getSnailBlockByHash", hash, true)
+	return ec.getSnailBlock(ctx, "tai_getSnailBlockByHash", hash, true)
 }
 
 // SnailBlockByNumber returns a block from the current canonical chain. If number is nil, the
@@ -82,7 +82,7 @@ func (ec *Client) SnailBlockByHash(ctx context.Context, hash Hash) (*rpcSnailBlo
 //
 // Note that loading full blocks requires two requests.
 func (ec *Client) SnailBlockByNumber(ctx context.Context, number *big.Int) (*rpcSnailBlock, error) {
-	return ec.getSnailBlock(ctx, "etai_getSnailBlockByNumber", toBlockNumArg(number), true)
+	return ec.getSnailBlock(ctx, "tai_getSnailBlockByNumber", toBlockNumArg(number), true)
 }
 
 type rpcSnailBlock struct {
@@ -123,7 +123,7 @@ func (ec *Client) getSnailBlock(ctx context.Context, method string, args ...inte
 //
 // Note that loading full blocks requires three requests.
 func (ec *Client) FruitByHash(ctx context.Context, hash Hash, fullSigns bool) (*rpcFruit, error) {
-	return ec.getFruit(ctx, "etai_getFruitByHash", hash, fullSigns)
+	return ec.getFruit(ctx, "tai_getFruitByHash", hash, fullSigns)
 }
 
 // FruitByNumber returns a block from the current canonical chain. If number is nil, the
@@ -131,7 +131,7 @@ func (ec *Client) FruitByHash(ctx context.Context, hash Hash, fullSigns bool) (*
 //
 // Note that loading full blocks requires three requests.
 func (ec *Client) FruitByNumber(ctx context.Context, number *big.Int, fullSigns bool) (*rpcFruit, error) {
-	return ec.getFruit(ctx, "etai_getFruitByNumber", toBlockNumArg(number), fullSigns)
+	return ec.getFruit(ctx, "tai_getFruitByNumber", toBlockNumArg(number), fullSigns)
 }
 
 type rpcFruit struct {
@@ -185,7 +185,7 @@ type rpcSnailHeader struct {
 // SnailHeaderByHash returns the block header with the given hash.
 func (ec *Client) SnailHeaderByHash(ctx context.Context, hash Hash) (*rpcSnailHeader, error) {
 	var head *rpcSnailHeader
-	err := ec.c.CallContext(ctx, &head, "etai_getSnailBlockByHash", hash, false)
+	err := ec.c.CallContext(ctx, &head, "tai_getSnailBlockByHash", hash, false)
 	if err == nil && head == nil {
 		err = taichain.NotFound
 	}
@@ -196,7 +196,7 @@ func (ec *Client) SnailHeaderByHash(ctx context.Context, hash Hash) (*rpcSnailHe
 // nil, the latest known header is returned.
 func (ec *Client) SnailHeaderByNumber(ctx context.Context, number *big.Int) (*rpcSnailHeader, error) {
 	var head *rpcSnailHeader
-	err := ec.c.CallContext(ctx, &head, "etai_getSnailBlockByNumber", toBlockNumArg(number), false)
+	err := ec.c.CallContext(ctx, &head, "tai_getSnailBlockByNumber", toBlockNumArg(number), false)
 	if err == nil && head == nil {
 		err = taichain.NotFound
 	}
@@ -210,7 +210,7 @@ func (ec *Client) SnailHeaderByNumber(ctx context.Context, number *big.Int) (*rp
 // Note that loading full blocks requires two requests. Use HeaderByHash
 // if you don't need all transactions or uncle headers.
 func (ec *Client) BlockByHash(ctx context.Context, hash Hash) (*types.Block, error) {
-	return ec.getBlock(ctx, "etai_getBlockByHash", hash, true)
+	return ec.getBlock(ctx, "tai_getBlockByHash", hash, true)
 }
 
 // BlockByNumber returns a block from the current canonical chain. If number is nil, the
@@ -219,7 +219,7 @@ func (ec *Client) BlockByHash(ctx context.Context, hash Hash) (*types.Block, err
 // Note that loading full blocks requires two requests. Use HeaderByNumber
 // if you don't need all transactions or uncle headers.
 func (ec *Client) BlockByNumber(ctx context.Context, number *big.Int) (*types.Block, error) {
-	return ec.getBlock(ctx, "etai_getBlockByNumber", toBlockNumArg(number), true)
+	return ec.getBlock(ctx, "tai_getBlockByNumber", toBlockNumArg(number), true)
 }
 
 type rpcBlock struct {
@@ -275,7 +275,7 @@ func (ec *Client) getBlock(ctx context.Context, method string, args ...interface
 // HeaderByHash returns the block header with the given hash.
 func (ec *Client) HeaderByHash(ctx context.Context, hash Hash) (*types.Header, error) {
 	var head *types.Header
-	err := ec.c.CallContext(ctx, &head, "etai_getBlockByHash", hash, false)
+	err := ec.c.CallContext(ctx, &head, "tai_getBlockByHash", hash, false)
 	if err == nil && head == nil {
 		err = taichain.NotFound
 	}
@@ -286,7 +286,7 @@ func (ec *Client) HeaderByHash(ctx context.Context, hash Hash) (*types.Header, e
 // nil, the latest known header is returned.
 func (ec *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error) {
 	var head *types.Header
-	err := ec.c.CallContext(ctx, &head, "etai_getBlockByNumber", toBlockNumArg(number), false)
+	err := ec.c.CallContext(ctx, &head, "tai_getBlockByNumber", toBlockNumArg(number), false)
 	if err == nil && head == nil {
 		err = taichain.NotFound
 	}
@@ -314,7 +314,7 @@ func (tx *rpcTransaction) UnmarshalJSON(msg []byte) error {
 // TransactionByHash returns the transaction with the given hash.
 func (ec *Client) TransactionByHash(ctx context.Context, hash Hash) (tx *types.Transaction, isPending bool, err error) {
 	var json *rpcTransaction
-	err = ec.c.CallContext(ctx, &json, "etai_getTransactionByHash", hash)
+	err = ec.c.CallContext(ctx, &json, "tai_getTransactionByHash", hash)
 	if err != nil {
 		return nil, false, err
 	} else if json == nil {
@@ -346,7 +346,7 @@ func (ec *Client) TransactionSender(ctx context.Context, tx *types.Transaction, 
 		Hash common.Hash
 		From common.Address
 	}
-	if err = ec.c.CallContext(ctx, &meta, "etai_getTransactionByBlockHashAndIndex", block, hexutil.Uint64(index)); err != nil {
+	if err = ec.c.CallContext(ctx, &meta, "tai_getTransactionByBlockHashAndIndex", block, hexutil.Uint64(index)); err != nil {
 		return common.Address{}, err
 	}
 	if meta.Hash == (common.Hash{}) || meta.Hash != tx.Hash() {
@@ -358,21 +358,21 @@ func (ec *Client) TransactionSender(ctx context.Context, tx *types.Transaction, 
 // TransactionCount returns the total number of transactions in the given block.
 func (ec *Client) TransactionCount(ctx context.Context, blockHash Hash) (uint, error) {
 	var num hexutil.Uint
-	err := ec.c.CallContext(ctx, &num, "etai_getBlockTransactionCountByHash", blockHash)
+	err := ec.c.CallContext(ctx, &num, "tai_getBlockTransactionCountByHash", blockHash)
 	return uint(num), err
 }
 
 // FruitCount returns the total number of fruits in the given block.
 func (ec *Client) FruitCount(ctx context.Context, blockHash Hash) (uint, error) {
 	var num hexutil.Uint
-	err := ec.c.CallContext(ctx, &num, "etai_getBlockFruitCountByHash", blockHash)
+	err := ec.c.CallContext(ctx, &num, "tai_getBlockFruitCountByHash", blockHash)
 	return uint(num), err
 }
 
 // TransactionInBlock returns a single transaction at index in the given block.
 func (ec *Client) TransactionInBlock(ctx context.Context, blockHash Hash, index uint) (*types.Transaction, error) {
 	var json *rpcTransaction
-	err := ec.c.CallContext(ctx, &json, "etai_getTransactionByBlockHashAndIndex", blockHash, hexutil.Uint64(index))
+	err := ec.c.CallContext(ctx, &json, "tai_getTransactionByBlockHashAndIndex", blockHash, hexutil.Uint64(index))
 	if err == nil {
 		if json == nil {
 			return nil, taichain.NotFound
@@ -389,14 +389,14 @@ func (ec *Client) TransactionInBlock(ctx context.Context, blockHash Hash, index 
 // FruitInBlockByHash returns a single fruit at index in the given block.
 func (ec *Client) FruitInBlockByHash(ctx context.Context, snailBlockHash Hash, index uint, fullSigns bool) (*rpcFruit, error) {
 	var json *rpcFruit
-	err := ec.c.CallContext(ctx, &json, "etai_getFruitByBlockHashAndIndex", snailBlockHash, hexutil.Uint64(index), fullSigns)
+	err := ec.c.CallContext(ctx, &json, "tai_getFruitByBlockHashAndIndex", snailBlockHash, hexutil.Uint64(index), fullSigns)
 	return json, err
 }
 
 // FruitInBlockByNumber returns a single fruit at index in the given block.
 func (ec *Client) FruitInBlockByNumber(ctx context.Context, snailBlockNumber *big.Int, index uint, fullSigns bool) (*rpcFruit, error) {
 	var json *rpcFruit
-	err := ec.c.CallContext(ctx, &json, "etai_getFruitByBlockNumberAndIndex", toBlockNumArg(snailBlockNumber), hexutil.Uint64(index), fullSigns)
+	err := ec.c.CallContext(ctx, &json, "tai_getFruitByBlockNumberAndIndex", toBlockNumArg(snailBlockNumber), hexutil.Uint64(index), fullSigns)
 	return json, err
 }
 
@@ -404,7 +404,7 @@ func (ec *Client) FruitInBlockByNumber(ctx context.Context, snailBlockNumber *bi
 // Note that the receipt is not available for pending transactions.
 func (ec *Client) TransactionReceipt(ctx context.Context, txHash Hash) (*types.Receipt, error) {
 	var r *types.Receipt
-	err := ec.c.CallContext(ctx, &r, "etai_getTransactionReceipt", txHash)
+	err := ec.c.CallContext(ctx, &r, "tai_getTransactionReceipt", txHash)
 	if err == nil {
 		if r == nil {
 			return nil, taichain.NotFound
@@ -436,7 +436,7 @@ type rpcProgress struct {
 // no sync currently running, it returns nil.
 func (ec *Client) SyncProgress(ctx context.Context) (*taichain.SyncProgress, error) {
 	var raw json.RawMessage
-	if err := ec.c.CallContext(ctx, &raw, "etai_syncing"); err != nil {
+	if err := ec.c.CallContext(ctx, &raw, "tai_syncing"); err != nil {
 		return nil, err
 	}
 	// Handle the possible response types
@@ -486,7 +486,7 @@ func (ec *Client) NetworkID(ctx context.Context) (*big.Int, error) {
 // The block number can be nil, in which case the balance is taken from the latest known block.
 func (ec *Client) BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error) {
 	var result hexutil.Big
-	err := ec.c.CallContext(ctx, &result, "etai_getBalance", account, toBlockNumArg(blockNumber))
+	err := ec.c.CallContext(ctx, &result, "tai_getBalance", account, toBlockNumArg(blockNumber))
 	return (*big.Int)(&result), err
 }
 
@@ -494,7 +494,7 @@ func (ec *Client) BalanceAt(ctx context.Context, account common.Address, blockNu
 // The block number can be nil, in which case the balance is taken from the latest known block.
 func (ec *Client) GetBalanceAtBlockNumber(ctx context.Context, account Address, blockNumber *big.Int) (*big.Int, error) {
 	var result hexutil.Big
-	err := ec.c.CallContext(ctx, &result, "etai_getBalance", account, toBlockNumArg(blockNumber))
+	err := ec.c.CallContext(ctx, &result, "tai_getBalance", account, toBlockNumArg(blockNumber))
 	return (*big.Int)(&result), err
 }
 
@@ -502,7 +502,7 @@ func (ec *Client) GetBalanceAtBlockNumber(ctx context.Context, account Address, 
 // The block number can be nil, in which case the value is taken from the latest known block.
 func (ec *Client) StorageAt(ctx context.Context, account Address, key common.Hash, blockNumber *big.Int) ([]byte, error) {
 	var result hexutil.Bytes
-	err := ec.c.CallContext(ctx, &result, "etai_getStorageAt", account, key, toBlockNumArg(blockNumber))
+	err := ec.c.CallContext(ctx, &result, "tai_getStorageAt", account, key, toBlockNumArg(blockNumber))
 	return result, err
 }
 
@@ -510,7 +510,7 @@ func (ec *Client) StorageAt(ctx context.Context, account Address, key common.Has
 // The block number can be nil, in which case the code is taken from the latest known block.
 func (ec *Client) CodeAt(ctx context.Context, account Address, blockNumber *big.Int) ([]byte, error) {
 	var result hexutil.Bytes
-	err := ec.c.CallContext(ctx, &result, "etai_getCode", account, toBlockNumArg(blockNumber))
+	err := ec.c.CallContext(ctx, &result, "tai_getCode", account, toBlockNumArg(blockNumber))
 	return result, err
 }
 
@@ -518,7 +518,7 @@ func (ec *Client) CodeAt(ctx context.Context, account Address, blockNumber *big.
 // The block number can be nil, in which case the nonce is taken from the latest known block.
 func (ec *Client) NonceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (uint64, error) {
 	var result hexutil.Uint64
-	err := ec.c.CallContext(ctx, &result, "etai_getTransactionCount", account, toBlockNumArg(blockNumber))
+	err := ec.c.CallContext(ctx, &result, "tai_getTransactionCount", account, toBlockNumArg(blockNumber))
 	return uint64(result), err
 }
 
@@ -526,7 +526,7 @@ func (ec *Client) NonceAt(ctx context.Context, account common.Address, blockNumb
 // The block number can be nil, in which case the nonce is taken from the latest known block.
 func (ec *Client) GetNonceAtBlockNumber(ctx context.Context, account Address, blockNumber *big.Int) (uint64, error) {
 	var result hexutil.Uint64
-	err := ec.c.CallContext(ctx, &result, "etai_getTransactionCount", account, toBlockNumArg(blockNumber))
+	err := ec.c.CallContext(ctx, &result, "tai_getTransactionCount", account, toBlockNumArg(blockNumber))
 	return uint64(result), err
 }
 
@@ -535,7 +535,7 @@ func (ec *Client) GetNonceAtBlockNumber(ctx context.Context, account Address, bl
 // FilterLogs executes a filter query.
 func (ec *Client) FilterLogs(ctx context.Context, q taichain.FilterQuery) ([]types.Log, error) {
 	var result []types.Log
-	err := ec.c.CallContext(ctx, &result, "etai_getLogs", toFilterArg(q))
+	err := ec.c.CallContext(ctx, &result, "tai_getLogs", toFilterArg(q))
 	return result, err
 }
 
@@ -562,21 +562,21 @@ func toFilterArg(q taichain.FilterQuery) interface{} {
 // PendingBalanceAt returns the wei balance of the given account in the pending state.
 func (ec *Client) PendingBalanceAt(ctx context.Context, account Address) (*big.Int, error) {
 	var result hexutil.Big
-	err := ec.c.CallContext(ctx, &result, "etai_getBalance", account, "pending")
+	err := ec.c.CallContext(ctx, &result, "tai_getBalance", account, "pending")
 	return (*big.Int)(&result), err
 }
 
 // PendingStorageAt returns the value of key in the contract storage of the given account in the pending state.
 func (ec *Client) PendingStorageAt(ctx context.Context, account Address, key Hash) ([]byte, error) {
 	var result hexutil.Bytes
-	err := ec.c.CallContext(ctx, &result, "etai_getStorageAt", account, key, "pending")
+	err := ec.c.CallContext(ctx, &result, "tai_getStorageAt", account, key, "pending")
 	return result, err
 }
 
 // PendingCodeAt returns the contract code of the given account in the pending state.
 func (ec *Client) PendingCodeAt(ctx context.Context, account Address) ([]byte, error) {
 	var result hexutil.Bytes
-	err := ec.c.CallContext(ctx, &result, "etai_getCode", account, "pending")
+	err := ec.c.CallContext(ctx, &result, "tai_getCode", account, "pending")
 	return result, err
 }
 
@@ -584,21 +584,21 @@ func (ec *Client) PendingCodeAt(ctx context.Context, account Address) ([]byte, e
 // This is the nonce that should be used for the next transaction.
 func (ec *Client) PendingNonceAt(ctx context.Context, account Address) (uint64, error) {
 	var result hexutil.Uint64
-	err := ec.c.CallContext(ctx, &result, "etai_getTransactionCount", account, "pending")
+	err := ec.c.CallContext(ctx, &result, "tai_getTransactionCount", account, "pending")
 	return uint64(result), err
 }
 
 // PendingTransactionCount returns the total number of transactions in the pending state.
 func (ec *Client) PendingTransactionCount(ctx context.Context) (uint, error) {
 	var num hexutil.Uint
-	err := ec.c.CallContext(ctx, &num, "etai_getBlockTransactionCountByNumber", "pending")
+	err := ec.c.CallContext(ctx, &num, "tai_getBlockTransactionCountByNumber", "pending")
 	return uint(num), err
 }
 
 // PendingFruitCount returns the total number of fruits in the pending state.
 func (ec *Client) PendingFruitCount(ctx context.Context) (uint, error) {
 	var num hexutil.Uint
-	err := ec.c.CallContext(ctx, &num, "etai_getBlockFruitCountByNumber", "pending")
+	err := ec.c.CallContext(ctx, &num, "tai_getBlockFruitCountByNumber", "pending")
 	return uint(num), err
 }
 
@@ -614,7 +614,7 @@ func (ec *Client) PendingFruitCount(ctx context.Context) (uint, error) {
 // blocks might not be available.
 func (ec *Client) CallContract(ctx context.Context, msg taichain.CallMsg, blockNumber *big.Int) ([]byte, error) {
 	var hex hexutil.Bytes
-	err := ec.c.CallContext(ctx, &hex, "etai_call", toCallArg(msg), toBlockNumArg(blockNumber))
+	err := ec.c.CallContext(ctx, &hex, "tai_call", toCallArg(msg), toBlockNumArg(blockNumber))
 	if err != nil {
 		return nil, err
 	}
@@ -625,7 +625,7 @@ func (ec *Client) CallContract(ctx context.Context, msg taichain.CallMsg, blockN
 // The state seen by the contract call is the pending state.
 func (ec *Client) PendingCallContract(ctx context.Context, msg taichain.CallMsg) ([]byte, error) {
 	var hex hexutil.Bytes
-	err := ec.c.CallContext(ctx, &hex, "etai_call", toCallArg(msg), "pending")
+	err := ec.c.CallContext(ctx, &hex, "tai_call", toCallArg(msg), "pending")
 	if err != nil {
 		return nil, err
 	}
@@ -636,7 +636,7 @@ func (ec *Client) PendingCallContract(ctx context.Context, msg taichain.CallMsg)
 // execution of a transaction.
 func (ec *Client) SuggestGasPrice(ctx context.Context) (*big.Int, error) {
 	var hex hexutil.Big
-	if err := ec.c.CallContext(ctx, &hex, "etai_gasPrice"); err != nil {
+	if err := ec.c.CallContext(ctx, &hex, "tai_gasPrice"); err != nil {
 		return nil, err
 	}
 	return (*big.Int)(&hex), nil
@@ -648,7 +648,7 @@ func (ec *Client) SuggestGasPrice(ctx context.Context) (*big.Int, error) {
 // but it should provide a basis for setting a reasonable default.
 func (ec *Client) EstimateGas(ctx context.Context, msg taichain.CallMsg) (uint64, error) {
 	var hex hexutil.Uint64
-	err := ec.c.CallContext(ctx, &hex, "etai_estimateGas", toCallArg(msg))
+	err := ec.c.CallContext(ctx, &hex, "tai_estimateGas", toCallArg(msg))
 	if err != nil {
 		return 0, err
 	}
@@ -664,7 +664,7 @@ func (ec *Client) SendTransaction(ctx context.Context, tx *types.Transaction) er
 	if err != nil {
 		return err
 	}
-	return ec.c.CallContext(ctx, nil, "etai_sendRawTransaction", common.ToHex(data))
+	return ec.c.CallContext(ctx, nil, "tai_sendRawTransaction", common.ToHex(data))
 }
 
 // SendPayTransaction injects a signed transaction(both sender and payer) into the pending pool for execution.
@@ -676,7 +676,7 @@ func (ec *Client) SendPayTransaction(ctx context.Context, tx *types.Transaction)
 	if err != nil {
 		return err
 	}
-	return ec.c.CallContext(ctx, nil, "etai_sendTrueRawTransaction", common.ToHex(data))
+	return ec.c.CallContext(ctx, nil, "tai_sendTrueRawTransaction", common.ToHex(data))
 }
 
 func toCallArg(msg taichain.CallMsg) interface{} {
@@ -702,30 +702,30 @@ func toCallArg(msg taichain.CallMsg) interface{} {
 	return arg
 }
 
-//etai_protocolVersion
+//tai_protocolVersion
 func (ec *Client) GetProtocolVersion(ctx context.Context) (string, error) {
 	var result string
-	err := ec.c.CallContext(ctx, &result, "etai_protocolVersion", nil)
+	err := ec.c.CallContext(ctx, &result, "tai_protocolVersion", nil)
 	if err != nil {
 		return result, err
 	}
 	return result, nil
 }
 
-//etai_coinbase
+//tai_coinbase
 func (ec *Client) Coinbase(ctx context.Context) (string, error) {
 	var result string
-	err := ec.c.CallContext(ctx, &result, "etai_coinbase", nil)
+	err := ec.c.CallContext(ctx, &result, "tai_coinbase", nil)
 	if err != nil {
 		return result, err
 	}
 	return result, nil
 }
 
-//etai_mining
+//tai_mining
 func (ec *Client) IsMining(ctx context.Context) (bool, error) {
 	var result bool
-	err := ec.c.CallContext(ctx, &result, "etai_mining", nil)
+	err := ec.c.CallContext(ctx, &result, "tai_mining", nil)
 	if err != nil {
 		return result, err
 	}

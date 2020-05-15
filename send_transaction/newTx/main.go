@@ -29,16 +29,16 @@ func main() {
 
 //send transaction init
 func send(ip string) {
-	//dial etai
+	//dial tai
 	client, err := rpc.Dial("http://" + ip)
 	defer client.Close()
 	if err != nil {
 		fmt.Println("Dail:", ip, err.Error())
 		return
 	}
-	err = client.Call(&account, "etai_accounts")
+	err = client.Call(&account, "tai_accounts")
 	if err != nil {
-		fmt.Println("etai_accounts Error", err.Error())
+		fmt.Println("tai_accounts Error", err.Error())
 		return
 	}
 	if len(account) == 0 {
@@ -70,7 +70,7 @@ func getBalance(client *rpc.Client, index int) {
 	time.Sleep(time.Second * 1)
 	var result string
 	for i := 0; i < index; i++ {
-		err := client.Call(&result, "etai_getBalance", account[i], "latest")
+		err := client.Call(&result, "tai_getBalance", account[i], "latest")
 		if err != nil {
 			log.Error("getBalance", "i", i, "error", err)
 		}
@@ -97,9 +97,9 @@ func sendTrueRawTransaction(client *rpc.Client, from string, to string, payment 
 		log.Error("personal_unlockAccount", "err", err)
 	}
 	var result string
-	err = client.Call(&result, "etai_sendTransaction", mapData)
+	err = client.Call(&result, "tai_sendTransaction", mapData)
 	if err != nil {
-		log.Error("etai_sendTransaction", "err", err)
+		log.Error("tai_sendTransaction", "err", err)
 	}
 	return result, err
 }
@@ -110,6 +110,6 @@ func getBalanceValue(hex string) *big.Int {
 	}
 	value, _ := new(big.Int).SetString(hex, 16)
 	//balance := new(big.Int).Set(value)
-	//fmt.Println("etai_getBalance Ok:", balance.Div(balance, big.NewInt(ether)), " value ", value, " hex ", hex)
+	//fmt.Println("tai_getBalance Ok:", balance.Div(balance, big.NewInt(ether)), " value ", value, " hex ", hex)
 	return value
 }

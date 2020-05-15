@@ -28,10 +28,10 @@ import (
 // In this example, our client whishes to track the latest 'block number'
 // known to the server. The server supports two methods:
 //
-// etai_getBlockByNumber("latest", {})
+// tai_getBlockByNumber("latest", {})
 //    returns the latest block object.
 //
-// etai_subscribe("newBlocks")
+// tai_subscribe("newBlocks")
 //    creates a subscription which fires block objects when new blocks arrive.
 
 type Block struct {
@@ -75,7 +75,7 @@ func subscribeBlocks(client *rpc.Client, subch chan Block) {
 	// The connection is established now.
 	// Update the channel with the current block.
 	var lastBlock Block
-	if err := client.CallContext(ctx, &lastBlock, "etai_getBlockByNumber", "latest"); err != nil {
+	if err := client.CallContext(ctx, &lastBlock, "tai_getBlockByNumber", "latest"); err != nil {
 		fmt.Println("can't get latest block:", err)
 		return
 	}

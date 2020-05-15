@@ -102,7 +102,7 @@ func main() {
 
 //send transaction init
 func send(count int, ip string) {
-	//dial etai
+	//dial tai
 	client, err := rpc.Dial("http://" + ip)
 
 	defer client.Close()
@@ -113,9 +113,9 @@ func send(count int, ip string) {
 		return
 	}
 
-	err = client.Call(&account, "etai_accounts")
+	err = client.Call(&account, "tai_accounts")
 	if err != nil {
-		fmt.Println("etai_accounts Error", err.Error())
+		fmt.Println("tai_accounts Error", err.Error())
 		msg <- false
 		return
 	}
@@ -231,7 +231,7 @@ func sendRawTransaction(client *rpc.Client, from string, to string, value string
 	mapData["value"] = value
 
 	var result string
-	err := client.Call(&result, "etai_sendTransaction", mapData)
+	err := client.Call(&result, "tai_sendTransaction", mapData)
 	return result, err
 }
 
@@ -256,7 +256,7 @@ func getBalanceValue(hex string, print bool) *big.Int {
 	value, _ := new(big.Int).SetString(hex, 16)
 	balance := new(big.Int).Set(value)
 	if print {
-		fmt.Println("etai_getBalance Ok:", " true ", balance.Div(balance, big.NewInt(1000000000000000000)), " value ", value, " hex ", hex)
+		fmt.Println("tai_getBalance Ok:", " true ", balance.Div(balance, big.NewInt(1000000000000000000)), " value ", value, " hex ", hex)
 	}
 	return value
 }
@@ -264,9 +264,9 @@ func getBalanceValue(hex string, print bool) *big.Int {
 func getAccountBalance(client *rpc.Client, account string) string {
 	var result string
 	// get balance
-	err := client.Call(&result, "etai_getBalance", account, "latest")
+	err := client.Call(&result, "tai_getBalance", account, "latest")
 	if err != nil {
-		fmt.Println("etai_getBalance Error:", err)
+		fmt.Println("tai_getBalance Error:", err)
 		msg <- false
 		return ""
 	}
@@ -353,7 +353,7 @@ func checkSonAccountBalance(client *rpc.Client, count int, main *big.Int) bool {
 				}
 				balance := getBalanceValue(result, true)
 				balanceTrue := new(big.Int).Set(balance)
-				fmt.Println("etai_getBalance son address ", account[i], " result ", balance, " i ", i, " true ", balanceTrue.Div(balanceTrue, big.NewInt(1000000000000000000)))
+				fmt.Println("tai_getBalance son address ", account[i], " result ", balance, " i ", i, " true ", balanceTrue.Div(balanceTrue, big.NewInt(1000000000000000000)))
 				if balance.Cmp(average) >= 0 {
 					if i == count-1 && len(noBalance) == 0 {
 						find = true

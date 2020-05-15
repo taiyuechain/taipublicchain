@@ -80,8 +80,8 @@ type snailBlockChain interface {
 // chain statistics up to a monitoring server.
 type Service struct {
 	server *p2p.Server      // Peer-to-peer server to retrieve networking infos
-	etai   *tai.Taichain    // Full Taichain service if monitoring a full node
-	les    *les.LightEtai   // Light Taichain service if monitoring a light node
+	tai    *tai.Taichain    // Full Taichain service if monitoring a full node
+	les    *les.LightTai    // Light Taichain service if monitoring a light node
 	engine consensus.Engine // Consensus engine to retrieve variadic block fields
 
 	node string // Name of the node to display on the monitoring page
@@ -94,7 +94,7 @@ type Service struct {
 }
 
 // New returns a monitoring service ready for stats reporting.
-func New(url string, ethServ *tai.Taichain, lesServ *les.LightEtai) (*Service, error) {
+func New(url string, ethServ *tai.Taichain, lesServ *les.LightTai) (*Service, error) {
 	// Parse the netstats connection url
 	re := regexp.MustCompile("([^:@]*)(:([^@]*))?@(.+)")
 	parts := re.FindStringSubmatch(url)
@@ -109,7 +109,7 @@ func New(url string, ethServ *tai.Taichain, lesServ *les.LightEtai) (*Service, e
 		engine = lesServ.Engine()
 	}
 	return &Service{
-		etai:        ethServ,
+		tai:         ethServ,
 		les:         lesServ,
 		engine:      engine,
 		node:        parts[1],
@@ -151,10 +151,10 @@ func (s *Service) loop() {
 	var blockchain blockChain
 	var txpool txPool
 	var snailBlockChain snailBlockChain
-	if s.etai != nil {
-		blockchain = s.etai.BlockChain()
-		txpool = s.etai.TxPool()
-		snailBlockChain = s.etai.SnailBlockChain()
+	if s.tai != nil {
+		blockchain = s.tai.BlockChain()
+		txpool = s.tai.TxPool()
+		snailBlockChain = s.tai.SnailBlockChain()
 	} else {
 		blockchain = s.les.BlockChain()
 		txpool = s.les.TxPool()
@@ -381,7 +381,7 @@ func handleHistCh(msg map[string][]interface{}, s *Service, command string) stri
 		} else {
 			s.snailHistCh <- nil
 		}
-		return "continue" // Etaistats sometime sends invalid history requests, ignore those
+		return "continue" // Taistats sometime sends invalid history requests, ignore those
 	}
 	list, ok := request["list"].([]interface{})
 	if !ok {
@@ -443,9 +443,9 @@ func (s *Service) login(conn *websocket.Conn) error {
 	infos := s.server.NodeInfo()
 
 	var network, protocol string
-	if info := infos.Protocols["etai"]; info != nil {
+	if info := infos.Protocols["tai"]; info != nil {
 		network = fmt.Sprintf("%d", info.(*tai.NodeInfo).Network)
-		protocol = fmt.Sprintf("etai/%d", tai.ProtocolVersions[0])
+		protocol = fmt.Sprintf("tai/%d", tai.ProtocolVersions[0])
 	} else {
 		network = fmt.Sprintf("%d", infos.Protocols["les"].(*les.NodeInfo).Network)
 		protocol = fmt.Sprintf("les/%d", les.ClientProtocolVersions[0])
@@ -628,10 +628,10 @@ func (s *Service) assembleBlockStats(block *types.Block) *blockStats {
 		header *types.Header
 		txs    []txStats
 	)
-	if s.etai != nil {
+	if s.tai != nil {
 		// Full nodes have all needed information available
 		if block == nil {
-			block = s.etai.BlockChain().CurrentBlock()
+			block = s.tai.BlockChain().CurrentBlock()
 		}
 		header = block.Header()
 
@@ -670,13 +670,13 @@ func (s *Service) assembleSnaiBlockStats(block *types.SnailBlock) *snailBlockSta
 		td          *big.Int
 		fruitNumber *big.Int
 	)
-	if s.etai != nil {
+	if s.tai != nil {
 		// Full nodes have all needed information available
 		if block == nil {
-			block = s.etai.SnailBlockChain().CurrentBlock()
+			block = s.tai.SnailBlockChain().CurrentBlock()
 		}
 		header = block.Header()
-		td = s.etai.SnailBlockChain().GetTd(header.Hash(), header.Number.Uint64())
+		td = s.tai.SnailBlockChain().GetTd(header.Hash(), header.Number.Uint64())
 		fruitNumber = big.NewInt(int64(len((block.Fruits()))))
 	} else {
 		// Light nodes would need on-demand lookups for transactions/uncles, skip
@@ -715,8 +715,8 @@ func (s *Service) reportHistory(conn *websocket.Conn, list []uint64) error {
 	} else {
 		// No indexes requested, send back the top ones
 		var head int64
-		if s.etai != nil {
-			head = s.etai.BlockChain().CurrentHeader().Number.Int64()
+		if s.tai != nil {
+			head = s.tai.BlockChain().CurrentHeader().Number.Int64()
 		} else {
 			head = s.les.BlockChain().CurrentHeader().Number.Int64()
 		}
@@ -733,8 +733,8 @@ func (s *Service) reportHistory(conn *websocket.Conn, list []uint64) error {
 	for i, number := range indexes {
 		// Retrieve the next block if it's known to us
 		var block *types.Block
-		if s.etai != nil {
-			block = s.etai.BlockChain().GetBlockByNumber(number)
+		if s.tai != nil {
+			block = s.tai.BlockChain().GetBlockByNumber(number)
 		} else {
 			if header := s.les.BlockChain().GetHeaderByNumber(number); header != nil {
 				block = types.NewBlockWithHeader(header)
@@ -773,8 +773,8 @@ func (s *Service) reportSnailHistory(conn *websocket.Conn, list []uint64) error 
 	} else {
 		// No indexes requested, send back the top ones
 		var head int64
-		if s.etai != nil {
-			head = s.etai.SnailBlockChain().CurrentHeader().Number.Int64()
+		if s.tai != nil {
+			head = s.tai.SnailBlockChain().CurrentHeader().Number.Int64()
 		} else {
 			//head = s.les.SnailBlockChain().CurrentHeader().Number.Int64()
 		}
@@ -791,8 +791,8 @@ func (s *Service) reportSnailHistory(conn *websocket.Conn, list []uint64) error 
 	for i, number := range indexes {
 		// Retrieve the next block if it's known to us
 		var snailBlock *types.SnailBlock
-		if s.etai != nil {
-			snailBlock = s.etai.SnailBlockChain().GetBlockByNumber(number)
+		if s.tai != nil {
+			snailBlock = s.tai.SnailBlockChain().GetBlockByNumber(number)
 		} else {
 			/*if header := s.les.BlockChain().GetHeaderByNumber(number); header != nil {
 				snailBlock = types.NewBlockWithHeader(header)
@@ -833,8 +833,8 @@ type pendStats struct {
 func (s *Service) reportPending(conn *websocket.Conn) error {
 	// Retrieve the pending count from the local blockchain
 	var pending int
-	if s.etai != nil {
-		pending, _ = s.etai.TxPool().Stats()
+	if s.tai != nil {
+		pending, _ = s.tai.TxPool().Stats()
 	} else {
 		pending = s.les.TxPool().Stats()
 	}
@@ -878,18 +878,18 @@ func (s *Service) reportStats(conn *websocket.Conn) error {
 		syncing           bool
 		gasprice          int
 	)
-	if s.etai != nil {
-		mining = s.etai.Miner().Mining()
-		hashrate = int(s.etai.Miner().HashRate())
+	if s.tai != nil {
+		mining = s.tai.Miner().Mining()
+		hashrate = int(s.tai.Miner().HashRate())
 
-		sync := s.etai.Downloader().Progress()
-		syncing = s.etai.BlockChain().CurrentHeader().Number.Uint64() >= sync.HighestFastBlock
+		sync := s.tai.Downloader().Progress()
+		syncing = s.tai.BlockChain().CurrentHeader().Number.Uint64() >= sync.HighestFastBlock
 
-		price, _ := s.etai.APIBackend.SuggestPrice(context.Background())
+		price, _ := s.tai.APIBackend.SuggestPrice(context.Background())
 		gasprice = int(price.Uint64())
 
-		isCommitteeMember = s.etai.PbftAgent().IsCommitteeMember()
-		isLeader = s.etai.PbftAgent().IsLeader()
+		isCommitteeMember = s.tai.PbftAgent().IsCommitteeMember()
+		isLeader = s.tai.PbftAgent().IsLeader()
 	} else {
 		sync := s.les.Downloader().Progress()
 		syncing = s.les.BlockChain().CurrentHeader().Number.Uint64() >= sync.HighestFastBlock

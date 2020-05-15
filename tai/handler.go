@@ -379,7 +379,7 @@ func resolveVersionFromName(name string) bool {
 	return false
 }
 
-// handle is the callback invoked to manage the life cycle of an etai peer. When
+// handle is the callback invoked to manage the life cycle of an tai peer. When
 // this function terminates, the peer is disconnected.
 func (pm *ProtocolManager) handle(p *peer) error {
 	// Ignore maxPeers if this is a trusted peer

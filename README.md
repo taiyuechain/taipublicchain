@@ -44,7 +44,7 @@ $ taipublic console
 
 This command will:
 
- * Start taipublic with network ID `19330` in full node mode(default, can be changed with the `--syncmode` flag after version 1.1).
+ * Start taipublic with network ID `20515` in full node mode(default, can be changed with the `--syncmode` flag after version 1.1).
  * Start up Taipublic's built-in interactive console,
    (via the trailing `console` subcommand) through which you can invoke all official [`web3` methods](https://github.com/taiyuechain/taipublicchain/wiki/RPC-API)
    as well as Taipublic's own [management APIs](https://github.com/taiyuechain/taipublicchain/wiki/Management-API).

@@ -31,7 +31,7 @@ import (
 	"github.com/taiyuechain/taipublicchain/trie"
 	"golang.org/x/crypto/sha3"
 
-	etai "github.com/taiyuechain/taipublicchain/tai/types"
+	tai "github.com/taiyuechain/taipublicchain/tai/types"
 )
 
 // stateReq represents a batch of state fetch requests grouped together into
@@ -41,7 +41,7 @@ type stateReq struct {
 	tasks    map[common.Hash]*stateTask // Download tasks to track previous attempts
 	timeout  time.Duration              // Maximum round trip time for this to complete
 	timer    *time.Timer                // Timer to fire when the RTT timeout expires
-	peer     etai.PeerConnection        // Peer that we're requesting from
+	peer     tai.PeerConnection         // Peer that we're requesting from
 	response [][]byte                   // Response data of the peer (nil for timeouts)
 	dropped  bool                       // Flag whether the peer dropped off early
 }
@@ -66,18 +66,18 @@ func (d *Downloader) SyncState(root common.Hash) *stateSync {
 	select {
 	case d.stateSyncStart <- s:
 	case <-d.quitCh:
-		s.err = etai.ErrCancelStateFetch
+		s.err = tai.ErrCancelStateFetch
 		close(s.done)
 	}
 	return s
 }
 
-func (d *Downloader) SyncStateFd(root common.Hash) etai.StateSyncInter {
+func (d *Downloader) SyncStateFd(root common.Hash) tai.StateSyncInter {
 	s := newStateSync(d, root)
 	select {
 	case d.stateSyncStart <- s:
 	case <-d.quitCh:
-		s.err = etai.ErrCancelStateFetch
+		s.err = tai.ErrCancelStateFetch
 		close(s.done)
 	}
 	return s
@@ -121,7 +121,7 @@ func (d *Downloader) runStateSync(s *stateSync) *stateSync {
 	defer s.Cancel()
 
 	// Listen for peer departure events to cancel assigned tasks
-	peerDrop := make(chan etai.PeerConnection, 1024)
+	peerDrop := make(chan tai.PeerConnection, 1024)
 	peerSub := s.d.peers.SubscribePeerDrops(peerDrop)
 	defer peerSub.Unsubscribe()
 
@@ -294,7 +294,7 @@ func (s *stateSync) Cancel() error {
 // and timeouts.
 func (s *stateSync) loop() (err error) {
 	// Listen for new peer events to assign tasks to them
-	newPeer := make(chan etai.PeerConnection, 1024)
+	newPeer := make(chan tai.PeerConnection, 1024)
 	peerSub := s.d.peers.SubscribeNewPeers(newPeer)
 	defer peerSub.Unsubscribe()
 	defer func() {
@@ -316,10 +316,10 @@ func (s *stateSync) loop() (err error) {
 			// New peer arrived, try to assign it download tasks
 
 		case <-s.cancel:
-			return etai.ErrCancelStateFetch
+			return tai.ErrCancelStateFetch
 
 		case <-s.d.cancelCh:
-			return etai.ErrCancelStateFetch
+			return tai.ErrCancelStateFetch
 
 		case req := <-s.deliver:
 			// Response, disconnect or timeout triggered, drop the peer if stalling

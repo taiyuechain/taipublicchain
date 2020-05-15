@@ -46,7 +46,7 @@ import (
 	"github.com/taiyuechain/taipublicchain/taidb"
 )
 
-type LightEtai struct {
+type LightTai struct {
 	config *tai.Config
 
 	odr         *LesOdr
@@ -80,7 +80,7 @@ type LightEtai struct {
 	wg sync.WaitGroup
 }
 
-func New(ctx *node.ServiceContext, config *tai.Config) (*LightEtai, error) {
+func New(ctx *node.ServiceContext, config *tai.Config) (*LightTai, error) {
 	chainDb, err := tai.CreateDB(ctx, config, "lightchaindata")
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func New(ctx *node.ServiceContext, config *tai.Config) (*LightEtai, error) {
 	peers := newPeerSet()
 	quitSync := make(chan struct{})
 
-	leth := &LightEtai{
+	leth := &LightTai{
 		config:           config,
 		chainConfig:      chainConfig,
 		chainDb:          chainDb,
@@ -180,9 +180,9 @@ func (s *LightDummyAPI) Mining() bool {
 
 // APIs returns the collection of RPC services the ethereum package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
-func (s *LightEtai) APIs() []rpc.API {
+func (s *LightTai) APIs() []rpc.API {
 	apis := trueapi.GetAPIs(s.ApiBackend)
-	namespaces := []string{"etai", "eth"}
+	namespaces := []string{"tai", "eth"}
 	for _, name := range namespaces {
 		apis = append(apis, []rpc.API{
 			{
@@ -214,26 +214,26 @@ func (s *LightEtai) APIs() []rpc.API {
 	return apis
 }
 
-func (s *LightEtai) ResetWithGenesisBlock(gb *types.Block) {
+func (s *LightTai) ResetWithGenesisBlock(gb *types.Block) {
 	s.blockchain.ResetWithGenesisBlock(gb)
 }
 
-func (s *LightEtai) BlockChain() *light.LightChain      { return s.blockchain }
-func (s *LightEtai) TxPool() *light.TxPool              { return s.txPool }
-func (s *LightEtai) Engine() consensus.Engine           { return s.engine }
-func (s *LightEtai) LesVersion() int                    { return int(s.protocolManager.SubProtocols[0].Version) }
-func (s *LightEtai) Downloader() *downloader.Downloader { return s.protocolManager.downloader }
-func (s *LightEtai) EventMux() *event.TypeMux           { return s.eventMux }
+func (s *LightTai) BlockChain() *light.LightChain      { return s.blockchain }
+func (s *LightTai) TxPool() *light.TxPool              { return s.txPool }
+func (s *LightTai) Engine() consensus.Engine           { return s.engine }
+func (s *LightTai) LesVersion() int                    { return int(s.protocolManager.SubProtocols[0].Version) }
+func (s *LightTai) Downloader() *downloader.Downloader { return s.protocolManager.downloader }
+func (s *LightTai) EventMux() *event.TypeMux           { return s.eventMux }
 
 // Protocols implements node.Service, returning all the currently configured
 // network protocols to start.
-func (s *LightEtai) Protocols() []p2p.Protocol {
+func (s *LightTai) Protocols() []p2p.Protocol {
 	return s.protocolManager.SubProtocols
 }
 
 // Start implements node.Service, starting all internal goroutines needed by the
 // Taichain protocol implementation.
-func (s *LightEtai) Start(srvr *p2p.Server) error {
+func (s *LightTai) Start(srvr *p2p.Server) error {
 	s.startBloomHandlers()
 	log.Warn("Light client mode is an experimental feature")
 	s.netRPCService = trueapi.NewPublicNetAPI(srvr, s.networkId)
@@ -246,7 +246,7 @@ func (s *LightEtai) Start(srvr *p2p.Server) error {
 
 // Stop implements node.Service, terminating all internal goroutines used by the
 // Taichain protocol.
-func (s *LightEtai) Stop() error {
+func (s *LightTai) Stop() error {
 	s.odr.Stop()
 	if s.bloomIndexer != nil {
 		s.bloomIndexer.Close()
