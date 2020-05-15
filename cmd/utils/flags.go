@@ -402,8 +402,8 @@ var (
 	}
 	// Logging and debug settings
 	TaiStatsURLFlag = cli.StringFlag{
-		Name:  "etaistats",
-		Usage: "Reporting URL of a etaistats service (nodename:secret@host:port)",
+		Name:  "taistats",
+		Usage: "Reporting URL of a taistats service (nodename:secret@host:port)",
 	}
 	FakePoWFlag = cli.BoolFlag{
 		Name:  "fakepow",
