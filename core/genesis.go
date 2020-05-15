@@ -420,7 +420,7 @@ func DefaultGenesisBlock() *Genesis {
 		Nonce:      330,
 		ExtraData:  hexutil.MustDecode("0x54727565436861696E204D61696E4E6574"),
 		GasLimit:   16777216,
-		Difficulty: big.NewInt(2147483648),
+		Difficulty: big.NewInt(100000),
 		//Timestamp:  1553918400,
 		Coinbase:   common.HexToAddress("0x0000000000000000000000000000000000000000"),
 		Mixhash:    common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000"),
