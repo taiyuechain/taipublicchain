@@ -182,7 +182,7 @@ func (s *LightDummyAPI) Mining() bool {
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (s *LightTai) APIs() []rpc.API {
 	apis := trueapi.GetAPIs(s.ApiBackend)
-	namespaces := []string{"tai", "eth"}
+	namespaces := []string{"tai", "eth", "etrue"}
 	for _, name := range namespaces {
 		apis = append(apis, []rpc.API{
 			{

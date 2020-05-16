@@ -83,7 +83,7 @@ func defaultNodeConfig() node.Config {
 	cfg := node.DefaultConfig
 	cfg.Name = clientIdentifier
 	cfg.Version = params.VersionWithCommit(gitCommit)
-	cfg.HTTPModules = append(cfg.HTTPModules, "tai", "eth", "shh")
+	cfg.HTTPModules = append(cfg.HTTPModules, "tai", "eth", "shh", "etrue")
 	cfg.WSModules = append(cfg.WSModules, "tai")
 	cfg.IPCPath = "taipublic.ipc"
 	return cfg

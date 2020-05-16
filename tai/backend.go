@@ -324,7 +324,7 @@ func (s *Taichain) APIs() []rpc.API {
 	apis = append(apis, s.engine.APIs(s.BlockChain())...)
 
 	// Append tai	APIs and  Eth APIs
-	namespaces := []string{"tai", "eth"}
+	namespaces := []string{"tai", "eth", "etrue"}
 	for _, name := range namespaces {
 		apis = append(apis, []rpc.API{
 			{
