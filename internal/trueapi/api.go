@@ -660,6 +660,14 @@ func (s *PublicBlockChainAPI) GetSnailBlockByNumber(ctx context.Context, blockNr
 	return nil, err
 }
 
+func (s *PublicBlockChainAPI) GetSnailHashByNumber(ctx context.Context, blockNr rpc.BlockNumber) string {
+	block, _ := s.b.SnailBlockByNumber(ctx, blockNr)
+	if block != nil {
+		return hexutil.Encode(block.Hash().Bytes())
+	}
+	return ""
+}
+
 // GetSnailBlockByHash returns the requested snail block.
 func (s *PublicBlockChainAPI) GetSnailBlockByHash(ctx context.Context, blockHash common.Hash, inclFruit bool) (map[string]interface{}, error) {
 	block, err := s.b.GetSnailBlock(ctx, blockHash)
@@ -952,8 +960,8 @@ func RPCMarshalBlock(b *types.Block, inclTx bool, fullTx bool) (map[string]inter
 		"maker":            head.Proposer,
 		"logsBloom":        head.Bloom,
 		"stateRoot":        head.Root,
-		"SnailHash":        head.SnailHash,
-		"SnailNumber":      (*hexutil.Big)(head.SnailNumber),
+		"snailHash":        head.SnailHash,
+		"snailNumber":      (*hexutil.Big)(head.SnailNumber),
 		"extraData":        hexutil.Bytes(head.Extra),
 		"size":             hexutil.Uint64(b.Size()),
 		"gasLimit":         hexutil.Uint64(head.GasLimit),
@@ -986,11 +994,11 @@ func RPCMarshalBlock(b *types.Block, inclTx bool, fullTx bool) (map[string]inter
 
 	formatMembers := func(commit *types.CommitteeMember) (map[string]interface{}, error) {
 		members := map[string]interface{}{
-			"Coinbase":      commit.Coinbase,
-			"CommitteeBase": commit.CommitteeBase,
-			"Publickey":     commit.Publickey,
-			"Flag":          commit.Flag,
-			"MType":         commit.MType,
+			"coinbase":      commit.Coinbase,
+			"committeeBase": commit.CommitteeBase,
+			"publickey":     commit.Publickey,
+			"flag":          commit.Flag,
+			"mType":         commit.MType,
 		}
 		return members, nil
 	}
@@ -1057,7 +1065,13 @@ func RPCMarshalSnailBlock(b *types.SnailBlock, inclFruit bool) (map[string]inter
 	fs := b.Fruits()
 	if inclFruit {
 		formatFruit := func(fruit *types.SnailBlock) (interface{}, error) {
-			return fruit.Hash(), nil
+			return map[string]interface{}{
+				"number":     (*hexutil.Big)(fruit.Header().FastNumber),
+				"hash":       fruit.Hash(),
+				"nonce":      fruit.Header().Nonce,
+				"miner":      fruit.Header().Coinbase,
+				"difficulty": (*hexutil.Big)(fruit.Header().FruitDifficulty),
+			}, nil
 		}
 		fruits := make([]interface{}, len(fs))
 		var err error
@@ -1067,9 +1081,9 @@ func RPCMarshalSnailBlock(b *types.SnailBlock, inclFruit bool) (map[string]inter
 			}
 		}
 		fields["fruits"] = fruits
-	} else {
+	} /*else {
 		fields["fruits"] = len(fs)
-	}
+	}*/
 	if len(fs) > 0 {
 		fields["beginFruitNumber"] = (*hexutil.Big)(fs[0].FastNumber())
 		fields["endFruitNumber"] = (*hexutil.Big)(fs[len(fs)-1].FastNumber())
@@ -1170,9 +1184,9 @@ func RPCMarshalRewardContent(content *types.SnailRewardContenet) map[string]inte
 		return nil
 	}
 	fields := map[string]interface{}{
-		"blockminer":     content.BlockMinerReward,
-		"fruitminer":     content.FruitMinerReward,
-		"committeReward": content.CommitteeReward,
+		"blockminer":      content.BlockMinerReward,
+		"fruitminer":      content.FruitMinerReward,
+		"committeeReward": content.CommitteeReward,
 	}
 	/*log.Warn("api", "blockminer", content.BlockMinerReward)
 	log.Warn("api", "committeReward", content.CommitteeReward)

@@ -5412,6 +5412,13 @@ var methods = function () {
         params: 0
     });
 
+    var getSnailHashByNumber = new Method({
+        name: 'getSnailHashByNumber',
+        call: 'tai_getSnailHashByNumber',
+        params: 1,
+        inputFormatter: [formatters.inputBlockNumberFormatter]
+    });
+
     var getBlockTransactionCount = new Method({
         name: 'getBlockTransactionCount',
         call: getBlockTransactionCountCall,
@@ -5567,7 +5574,14 @@ var methods = function () {
         inputFormatter: [formatters.inputNoPendingNumberFormatter]
         // outputFormatter: formatters.outputSnailFormatter
     });
-    
+
+    var getCurrentCommitteeNumber = new Method({
+        name: 'getCurrentCommitteeNumber',
+        call: 'tai_getCurrentCommitteeNumber',
+        params: 1,
+        outputFormatter: utils.toDecimal
+    });
+
     var getCurrentState = new Method({
         name: 'getCurrentState',
         call: 'tai_getCurrentState',
@@ -5588,6 +5602,8 @@ var methods = function () {
     });
 
     return [
+        getCurrentCommitteeNumber,
+        getSnailHashByNumber,
         getBalance,
         getStorageAt,
         getCode,

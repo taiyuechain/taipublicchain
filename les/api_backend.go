@@ -203,6 +203,10 @@ func (b *LesApiBackend) GetCommittee(number rpc.BlockNumber) (map[string]interfa
 	return nil, nil
 }
 
+func (b *LesApiBackend) GetCurrentCommitteeNumber() *big.Int {
+	return nil
+}
+
 func (b *LesApiBackend) GetSnailRewardContent(number rpc.BlockNumber) *types.SnailRewardContenet {
 	return nil
 }

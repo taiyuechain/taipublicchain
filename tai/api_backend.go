@@ -216,9 +216,17 @@ func (b *TrueAPIBackend) GetSnailRewardContent(snailNumber rpc.BlockNumber) *typ
 }
 
 func (b *TrueAPIBackend) GetCommittee(number rpc.BlockNumber) (map[string]interface{}, error) {
+	if number == rpc.LatestBlockNumber {
+		return b.tai.election.GetCommitteeById(new(big.Int).SetUint64(b.tai.agent.CommitteeNumber())), nil
+	}
 	return b.tai.election.GetCommitteeById(big.NewInt(number.Int64())), nil
 }
 
+func (b *TrueAPIBackend) GetCurrentCommitteeNumber() *big.Int {
+	return b.tai.election.GetCurrentCommitteeNumber()
+}
+
+// SendTx returns nil by success to add local txpool
 func (b *TrueAPIBackend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
 	return b.tai.txPool.AddLocal(signedTx)
 }
